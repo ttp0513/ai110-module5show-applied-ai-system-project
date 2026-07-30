@@ -27,7 +27,7 @@ def test_health_check() -> None:
         "application": "VYBE",
         "environment": "development",
         "demo_mode": True,
-        "phase": 2,
+        "phase": 3,
     }
 
 
@@ -35,4 +35,4 @@ def test_root_describes_scaffold() -> None:
     response = asyncio.run(get("/"))
 
     assert response.status_code == 200
-    assert response.json()["status"] == "Phase 2 architecture scaffold"
+    assert response.json()["status"] == "Phase 3 deterministic recommender"

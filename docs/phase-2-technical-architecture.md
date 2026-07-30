@@ -20,6 +20,7 @@ preserving boundaries that can be extracted later if scale requires it.
 | Package | Responsibility | Primary phase |
 |---|---|---:|
 | `app.api` | HTTP transport, request validation, public responses | 2 and 9 |
+| `app.catalog` | Validated public and private song access | 3 and 4 |
 | `app.models` | Canonical domain and transport schemas | 3 and 4 |
 | `app.recommendation` | Deterministic scoring and hybrid ranking | 3 and 8 |
 | `app.retrieval` | Document construction, indexing, semantic search | 6 |
@@ -103,7 +104,8 @@ Planned routes are documented but not implemented until their owning phases:
 
 | Method | Route | Owning phase |
 |---|---|---:|
-| `GET` | `/api/catalog/options` | 3 and 9 |
+| `GET` | `/api/catalog/options` | Implemented in 3 |
+| `POST` | `/api/recommendations/deterministic` | Implemented in 3 |
 | `POST` | `/api/preferences/interpret` | 7 and 9 |
 | `POST` | `/api/recommendations` | 8 and 9 |
 | `POST` | `/api/recommendations/refine` | 8 and 9 |

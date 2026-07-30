@@ -1,0 +1,21 @@
+flowchart LR
+    INPUT["Validated manual preferences"]
+    CATALOG[("60-song canonical catalog")]
+    FILTER["Apply genre and mood exclusions"]
+    RANGE["Calculate catalog ranges"]
+    SIMILARITY["Calculate active feature similarities"]
+    WEIGHTS["Renormalize active weights"]
+    SCORE["Sum auditable contributions"]
+    RANK["Sort score descending with stable ties"]
+    OUTPUT["Return top songs and structured reasons"]
+
+    INPUT --> FILTER
+    CATALOG --> FILTER
+    CATALOG --> RANGE
+    FILTER --> SIMILARITY
+    INPUT --> SIMILARITY
+    RANGE --> SIMILARITY
+    SIMILARITY --> WEIGHTS
+    WEIGHTS --> SCORE
+    SCORE --> RANK
+    RANK --> OUTPUT

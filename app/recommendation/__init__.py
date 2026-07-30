@@ -1,1 +1,5 @@
-"""Deterministic and hybrid ranking domain (implemented in Phases 3 and 8)."""
+"""Deterministic scoring and ranking domain."""
+
+from app.recommendation.service import DeterministicRecommender
+
+__all__ = ["DeterministicRecommender"]

@@ -21,6 +21,8 @@
 | D-011 | Provide recommendations without streaming, previews, or playback | Accepted | Keeps the product focused and avoids media licensing and storage complexity |
 | D-012 | Use VYBE as the working name | Proposed | Brand and trademark review remain future work |
 | D-013 | Exclude popularity and familiarity from song features | Accepted | The value changes over time, is not inferable from audio, and cannot be supplied consistently by users |
+| D-014 | Use fixed supported genre and mood vocabularies | Accepted | Keeps manual input, AI output, audio estimates, and catalog values interoperable |
+| D-015 | Renormalize weights using active preferences only | Accepted | Unselected features must not silently affect a listener's score |
 
 ## Decisions still open
 

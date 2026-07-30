@@ -10,9 +10,10 @@ or correct those values before the track enters their private catalog.
 ## Project status
 
 - **Phase 1 complete:** product requirements and system boundaries
-- **Phase 2 in review:** runnable scaffold, configuration, and architecture
+- **Phase 2 complete:** runnable scaffold, configuration, and architecture
+- **Phase 3 in review:** canonical catalog and deterministic recommendation
 
-Recommendation, retrieval, AI, audio-analysis, and final UI behavior are
+Semantic retrieval, AI, audio analysis, user-added songs, and the final UI are
 intentionally reserved for later phases.
 
 ## Phase 1 documents
@@ -34,6 +35,11 @@ intentionally reserved for later phases.
 - [Deployment diagram](diagrams/deployment.mmd)
 - [AI reliability flow](diagrams/ai-reliability-flow.mmd)
 
+## Phase 3 documents
+
+- [Catalog and scoring design](docs/phase-3-catalog-and-recommender.md)
+- [Deterministic recommendation flow](diagrams/deterministic-recommendation-flow.mmd)
+
 ## Local setup
 
 Install Python 3.12, 3.13, or 3.14 before running these commands. Phase 2 was
@@ -51,6 +57,25 @@ python -m uvicorn app.main:app --reload
 ```
 
 Open `http://127.0.0.1:8000/docs` for the generated API documentation.
+
+### Deterministic recommendation example
+
+```powershell
+$body = @{
+    preferred_genres = @("lofi")
+    preferred_moods = @("focused")
+    target_instrumentalness = 0.90
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Method Post `
+    -Uri "http://127.0.0.1:8000/api/recommendations/deterministic?limit=5" `
+    -ContentType "application/json" `
+    -Body $body
+```
+
+Use `GET /api/catalog/options` to retrieve supported genres, moods, and
+recommendation features.
 
 ### Verification
 
@@ -73,8 +98,8 @@ excluded from version control.
 ## Planned delivery phases
 
 1. Requirements and project definition
-2. Project setup and architecture — in review
-3. Song catalog and deterministic recommender
+2. Project setup and architecture — complete
+3. Song catalog and deterministic recommender — in review
 4. User song upload and manual entry
 5. AI audio analysis
 6. Retrieval-augmented generation
