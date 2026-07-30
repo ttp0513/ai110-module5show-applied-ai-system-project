@@ -10,3 +10,5 @@ def test_safe_default_configuration() -> None:
     assert settings.ai_provider == "demo"
     assert settings.ai_api_key == ""
     assert settings.recommendation_count == 5
+    assert settings.private_database_path.as_posix() == "data/vybe.db"
+    assert settings.session_cookie_max_age_days == 3650

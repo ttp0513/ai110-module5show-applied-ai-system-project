@@ -19,6 +19,13 @@ const elements = {
   resultsSection: document.querySelector("#results-section"),
   resultsSummary: document.querySelector("#results-summary"),
   resultsList: document.querySelector("#results-list"),
+  songGenre: document.querySelector("#song-genre"),
+  songMood: document.querySelector("#song-mood"),
+  songForm: document.querySelector("#manual-song-form"),
+  songFormMessage: document.querySelector("#song-form-message"),
+  saveSongButton: document.querySelector("#save-song-button"),
+  privateSongCount: document.querySelector("#private-song-count"),
+  privateSongList: document.querySelector("#private-song-list"),
 };
 
 function titleCase(value) {
@@ -60,6 +67,8 @@ function renderOptions(options) {
   );
   populateSelect(elements.excludedGenre, options.genres);
   populateSelect(elements.excludedMood, options.moods);
+  populateSelect(elements.songGenre, options.genres);
+  populateSelect(elements.songMood, options.moods);
   elements.songCount.textContent = options.song_count;
   elements.catalogSummary.textContent = `${options.song_count} songs ready to rank`;
 }
@@ -203,6 +212,71 @@ function renderResults(payload) {
   elements.resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function privateSongRow(record) {
+  const row = document.createElement("div");
+  row.className = "private-song-row";
+  const identity = document.createElement("div");
+  const title = document.createElement("strong");
+  title.textContent = record.song.title;
+  const metadata = document.createElement("small");
+  metadata.textContent =
+    `${record.song.artist} · ${record.song.genre} · ${record.song.mood}`;
+  identity.append(title, metadata);
+
+  const remove = document.createElement("button");
+  remove.className = "delete-song-button";
+  remove.type = "button";
+  remove.textContent = "Remove";
+  remove.setAttribute("aria-label", `Remove ${record.song.title}`);
+  remove.addEventListener("click", async () => {
+    remove.disabled = true;
+    const response = await fetch(`/api/songs/private/${record.song.id}`, {
+      method: "DELETE",
+    });
+    if (response.ok) {
+      await loadPrivateSongs();
+      await refreshCatalogCounts();
+    } else {
+      remove.disabled = false;
+      elements.songFormMessage.textContent = "This private song could not be removed.";
+      elements.songFormMessage.hidden = false;
+    }
+  });
+  row.append(identity, remove);
+  return row;
+}
+
+function renderPrivateSongs(payload) {
+  elements.privateSongCount.textContent = payload.count;
+  if (!payload.records.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-private-state";
+    empty.textContent =
+      "No private songs yet. Add one to include it in your next ranking.";
+    elements.privateSongList.replaceChildren(empty);
+    return;
+  }
+  elements.privateSongList.replaceChildren(
+    ...payload.records.map(privateSongRow),
+  );
+}
+
+async function loadPrivateSongs() {
+  const response = await fetch("/api/songs/private");
+  if (!response.ok) throw new Error("Private songs are unavailable.");
+  renderPrivateSongs(await response.json());
+}
+
+async function refreshCatalogCounts() {
+  const response = await fetch("/api/catalog/options");
+  if (!response.ok) return;
+  const options = await response.json();
+  state.options.song_count = options.song_count;
+  state.options.private_song_count = options.private_song_count;
+  elements.songCount.textContent = options.song_count;
+  elements.catalogSummary.textContent = `${options.song_count} songs ready to rank`;
+}
+
 async function loadOptions() {
   try {
     const response = await fetch("/api/catalog/options");
@@ -214,6 +288,26 @@ async function loadOptions() {
     elements.error.hidden = false;
     elements.submit.disabled = true;
   }
+}
+
+function buildManualSongPayload(form) {
+  const data = new FormData(form);
+  const normalizedFeatures = [
+    "energy",
+    "valence",
+    "danceability",
+    "acousticness",
+    "instrumentalness",
+    "liveness",
+  ];
+  const payload = Object.fromEntries(data.entries());
+  normalizedFeatures.forEach((feature) => {
+    payload[feature] = Number(payload[feature]) / 100;
+  });
+  payload.tempo_bpm = Number(payload.tempo_bpm);
+  payload.release_year = Number(payload.release_year);
+  payload.duration_seconds = Number(payload.duration_seconds);
+  return payload;
 }
 
 document.querySelectorAll(".slider-control").forEach((control) => {
@@ -273,4 +367,67 @@ elements.form.addEventListener("submit", async (event) => {
   }
 });
 
-loadOptions();
+document.querySelectorAll(".manual-feature-grid input[type='range']").forEach(
+  (input) => {
+    const output = input.closest("label").querySelector("output");
+    input.addEventListener("input", () => {
+      output.textContent = `${input.value}%`;
+    });
+  },
+);
+
+const releaseYearInput = elements.songForm.elements.release_year;
+const currentYear = new Date().getFullYear();
+releaseYearInput.max = String(currentYear);
+releaseYearInput.value = String(currentYear);
+
+elements.songForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  elements.songFormMessage.hidden = true;
+  elements.saveSongButton.disabled = true;
+  elements.saveSongButton.querySelector("span").textContent = "Saving…";
+
+  try {
+    const response = await fetch("/api/songs/private", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildManualSongPayload(elements.songForm)),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail?.[0]?.msg || error.detail || "Song could not be saved.");
+    }
+    elements.songForm.reset();
+    releaseYearInput.value = String(currentYear);
+    document.querySelectorAll(".manual-feature-grid input[type='range']").forEach(
+      (input) => {
+        input.dispatchEvent(new Event("input"));
+      },
+    );
+    elements.songFormMessage.textContent =
+      "Song saved. It will be considered in your next recommendation.";
+    elements.songFormMessage.classList.add("success-message");
+    elements.songFormMessage.hidden = false;
+    await loadPrivateSongs();
+    await refreshCatalogCounts();
+  } catch (error) {
+    elements.songFormMessage.textContent = error.message;
+    elements.songFormMessage.classList.remove("success-message");
+    elements.songFormMessage.hidden = false;
+  } finally {
+    elements.saveSongButton.disabled = false;
+    elements.saveSongButton.querySelector("span").textContent = "Save private song";
+  }
+});
+
+async function initialize() {
+  await loadOptions();
+  try {
+    await loadPrivateSongs();
+  } catch (error) {
+    elements.songFormMessage.textContent = error.message;
+    elements.songFormMessage.hidden = false;
+  }
+}
+
+initialize();

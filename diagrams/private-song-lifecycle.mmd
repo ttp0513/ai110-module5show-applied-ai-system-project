@@ -1,0 +1,27 @@
+sequenceDiagram
+    actor Listener
+    participant UI
+    participant API
+    participant Session as Session Manager
+    participant Private as Private Repository
+    participant Recommender
+    participant Public as Built-in Catalog
+
+    Listener->>UI: Enter all canonical song features
+    UI->>API: POST private song
+    API->>Session: Resolve issued anonymous ID
+    Session-->>API: Opaque session ID
+    API->>Private: Validate and create private record
+    Private-->>UI: Canonical song and user-entered provenance
+
+    Listener->>UI: Request recommendations
+    UI->>API: Submit preferences with session cookie
+    API->>Public: Load 60 built-in songs
+    API->>Private: Load current session songs
+    API->>Recommender: Rank combined catalog
+    Recommender-->>UI: Grounded deterministic recommendations
+
+    Listener->>UI: Remove private song
+    UI->>API: DELETE private song ID
+    API->>Private: Delete only within current session
+    Private-->>UI: No content

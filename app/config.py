@@ -1,6 +1,7 @@
 """Validated application configuration."""
 
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field
@@ -27,6 +28,8 @@ class Settings(BaseSettings):
     recommendation_count: int = Field(default=5, ge=1, le=20)
     request_timeout_seconds: int = Field(default=30, ge=1, le=120)
     max_prompt_length: int = Field(default=1000, ge=1, le=5000)
+    private_database_path: Path = Path("data/vybe.db")
+    session_cookie_max_age_days: int = Field(default=3650, ge=1, le=3650)
 
 
 @lru_cache

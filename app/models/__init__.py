@@ -1,6 +1,12 @@
 """Validated domain and transport models."""
 
 from app.models.preferences import UserPreferences
+from app.models.private_song import (
+    FeatureProvenance,
+    FeatureSource,
+    ManualSongCreate,
+    PrivateSongRecord,
+)
 from app.models.recommendation import (
     FeatureReason,
     Recommendation,
@@ -10,8 +16,12 @@ from app.models.song import Genre, Mood, Song, SongOwnerScope, SongSource
 
 __all__ = [
     "FeatureReason",
+    "FeatureProvenance",
+    "FeatureSource",
     "Genre",
     "Mood",
+    "ManualSongCreate",
+    "PrivateSongRecord",
     "Recommendation",
     "RecommendationResponse",
     "Song",

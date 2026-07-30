@@ -25,6 +25,8 @@ def test_root_serves_preference_builder() -> None:
     assert "What should this mix feel like?" in response.text
     assert 'id="recommendation-form"' in response.text
     assert 'id="results-section"' in response.text
+    assert 'id="manual-song-form"' in response.text
+    assert 'id="private-song-list"' in response.text
     assert "play audio" not in response.text.lower()
 
 
@@ -36,3 +38,4 @@ def test_static_assets_are_available() -> None:
     assert "--lime: #d7ff64" in stylesheet.text
     assert script.status_code == 200
     assert "/api/recommendations/deterministic" in script.text
+    assert "/api/songs/private" in script.text

@@ -12,10 +12,11 @@ or correct those values before the track enters their private catalog.
 - **Phase 1 complete:** product requirements and system boundaries
 - **Phase 2 complete:** runnable scaffold, configuration, and architecture
 - **Phase 3 complete:** canonical catalog and deterministic recommendation
-- **UI checkpoint in review:** responsive interface for Phases 1–3
+- **Phase 3 prototype complete:** responsive deterministic interface
+- **Phase 4 in review:** anonymous private songs and manual entry
 
-Semantic retrieval, AI, audio analysis, user-added songs, and the final UI are
-intentionally reserved for later phases.
+Semantic retrieval, AI preference extraction, audio analysis, and the final AI
+interface are intentionally reserved for later phases.
 
 ## Phase 1 documents
 
@@ -56,8 +57,20 @@ The current browser interface includes:
 - Keyboard focus, semantic form controls, reduced motion, and safe text
   rendering
 
-It intentionally does not include natural-language AI, RAG, user-added songs,
-audio analysis, or playback. Those capabilities belong to later phases.
+This Phase 3 checkpoint intentionally excluded natural-language AI, RAG,
+user-added songs, audio analysis, and playback. Phase 4 now extends the same
+interface with private manual song entry.
+
+## Phase 4 documents
+
+- [Private songs and manual entry](docs/phase-4-private-songs.md)
+- [Private song lifecycle](diagrams/private-song-lifecycle.mmd)
+
+Phase 4 lets a listener add complete song metadata and recommendation features
+without uploading audio. The song remains isolated to an opaque anonymous
+session, participates in deterministic ranking, and can be removed by its
+owner. SQLite preserves the song across application restarts, while a
+persistent HTTP-only cookie reconnects the same browser to its records.
 
 ## Local setup
 
@@ -119,7 +132,7 @@ excluded from version control.
 1. Requirements and project definition
 2. Project setup and architecture — complete
 3. Song catalog and deterministic recommender — complete
-4. User song upload and manual entry
+4. Private songs and manual feature entry — in review
 5. AI audio analysis
 6. Retrieval-augmented generation
 7. AI preference extraction

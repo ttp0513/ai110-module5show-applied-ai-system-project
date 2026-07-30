@@ -54,7 +54,8 @@ specific AI provider.
 ### Local data
 
 - Built-in catalog: approved, version-controlled song records.
-- Private catalog: session-scoped user records, excluded from Git.
+- Private catalog: session-scoped SQLite records, with the database excluded
+  from Git.
 - Retrieval artifacts: derived indexes that can be rebuilt from approved data.
 - Upload workspace: temporary, non-public, and cleaned according to policy.
 
@@ -109,10 +110,11 @@ Planned routes are documented but not implemented until their owning phases:
 | `POST` | `/api/preferences/interpret` | 7 and 9 |
 | `POST` | `/api/recommendations` | 8 and 9 |
 | `POST` | `/api/recommendations/refine` | 8 and 9 |
-| `POST` | `/api/songs` | 4 and 9 |
+| `GET` | `/api/songs/private` | Implemented in 4 |
+| `POST` | `/api/songs/private` | Implemented in 4 |
 | `POST` | `/api/songs/analyze` | 5 and 9 |
 | `GET` | `/api/jobs/{job_id}` | 5 and 9 |
-| `DELETE` | `/api/songs/{song_id}` | 4 and 9 |
+| `DELETE` | `/api/songs/private/{song_id}` | Implemented in 4 |
 
 ## 7. Request lifecycle
 
