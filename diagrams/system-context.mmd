@@ -1,0 +1,30 @@
+flowchart LR
+    U["Listener"]
+
+    subgraph VYBE["VYBE application"]
+        UI["Responsive interface"]
+        ORCH["AI recommendation orchestrator"]
+        AUDIO["Audio analysis pipeline"]
+        REC["Retrieval and recommendation engine"]
+        SAFE["Validation, guardrails, and logging"]
+    end
+
+    CATALOG[("Built-in song catalog")]
+    PRIVATE[("Listener's private catalog")]
+    MODEL["Configured language model"]
+    MUSIC["Specialized music-analysis models"]
+
+    U -->|"describe vibe, set preferences"| UI
+    U -->|"upload audio or enter features"| UI
+    UI --> ORCH
+    UI --> AUDIO
+    ORCH --> MODEL
+    ORCH --> REC
+    AUDIO --> MUSIC
+    AUDIO --> PRIVATE
+    CATALOG --> REC
+    PRIVATE --> REC
+    SAFE --- ORCH
+    SAFE --- AUDIO
+    SAFE --- REC
+    REC -->|"ranked, grounded mix"| UI
