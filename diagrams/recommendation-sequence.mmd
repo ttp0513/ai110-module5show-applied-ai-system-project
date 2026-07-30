@@ -1,0 +1,29 @@
+sequenceDiagram
+    actor Listener
+    participant UI
+    participant API
+    participant Orchestrator
+    participant AI as AI Adapter
+    participant Retriever
+    participant Ranker
+    participant Validator
+
+    Listener->>UI: Describe current vibe
+    UI->>API: Submit vibe request
+    API->>Orchestrator: Interpret request
+    Orchestrator->>AI: Extract structured preferences
+    AI-->>Orchestrator: Preference proposal
+    Orchestrator-->>UI: Reviewable interpretation
+    Listener->>UI: Confirm or correct
+    UI->>API: Request recommendations
+    API->>Orchestrator: Generate grounded mix
+    Orchestrator->>Retriever: Retrieve approved candidates
+    Retriever-->>Orchestrator: Song IDs and relevance
+    Orchestrator->>Ranker: Feature and hybrid scoring
+    Ranker-->>Orchestrator: Ranked records and evidence
+    Orchestrator->>AI: Generate from verified evidence
+    AI-->>Validator: Structured explanations
+    Validator-->>Orchestrator: Valid results or fallback requirement
+    Orchestrator-->>API: Recommendation response
+    API-->>UI: Five or fewer grounded songs
+    UI-->>Listener: Display mix and explanations

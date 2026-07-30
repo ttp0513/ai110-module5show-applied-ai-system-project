@@ -1,0 +1,32 @@
+flowchart TB
+    subgraph Device["Listener device"]
+        BROWSER["Modern web browser"]
+    end
+
+    subgraph Host["MVP application host"]
+        APP["FastAPI process"]
+        STATIC["Templates and static assets"]
+        CATALOG[("Built-in catalog")]
+        PRIVATE[("Session-private records")]
+        INDEX[("Rebuildable retrieval index")]
+        TEMP[("Temporary audio workspace")]
+        LOGS[("Sanitized structured logs")]
+    end
+
+    subgraph Providers["Optional configured providers"]
+        LLM["Language and embedding models"]
+        MIR["Music-information retrieval models"]
+    end
+
+    BROWSER <-->|"HTTPS in deployment"| APP
+    APP --> STATIC
+    APP --> CATALOG
+    APP --> PRIVATE
+    APP --> INDEX
+    APP --> TEMP
+    APP --> LOGS
+    APP -.->|"credentialed outbound request"| LLM
+    APP --> MIR
+
+    NOTE["Demo mode replaces external AI calls with deterministic adapters"]
+    NOTE -.-> APP

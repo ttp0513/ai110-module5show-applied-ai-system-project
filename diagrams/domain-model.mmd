@@ -1,0 +1,71 @@
+classDiagram
+    class Song {
+        +str id
+        +str title
+        +str artist
+        +str genre
+        +str mood
+        +float energy
+        +float tempo_bpm
+        +float valence
+        +float danceability
+        +float acousticness
+        +float instrumentalness
+        +float liveness
+        +int release_year
+        +int duration_seconds
+        +SongSource source
+        +OwnerScope owner_scope
+    }
+
+    class FeatureProvenance {
+        +str feature_name
+        +FeatureSource source
+        +float confidence
+        +str model_version
+        +bool user_corrected
+    }
+
+    class UserPreferences {
+        +list preferred_genres
+        +list preferred_moods
+        +dict numeric_targets
+        +dict constraints
+        +list exclusions
+    }
+
+    class RetrievalCandidate {
+        +str song_id
+        +float relevance
+    }
+
+    class FeatureContribution {
+        +str feature
+        +float similarity
+        +float normalized_weight
+        +float contribution
+    }
+
+    class Recommendation {
+        +Song song
+        +int rank
+        +float feature_score
+        +float retrieval_score
+        +float constraint_score
+        +float final_score
+        +str explanation
+    }
+
+    class AnalysisJob {
+        +str id
+        +JobStatus status
+        +int progress
+        +str error_code
+    }
+
+    Song "1" *-- "1..*" FeatureProvenance
+    RetrievalCandidate --> Song
+    Recommendation --> Song
+    Recommendation "1" *-- "1..*" FeatureContribution
+    UserPreferences --> Recommendation
+    AnalysisJob --> Song : proposes

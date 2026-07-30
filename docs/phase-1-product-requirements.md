@@ -10,6 +10,9 @@ transparent feature-based scoring, and explains why each result fits.
 Listeners can also add private songs by uploading audio for assisted analysis
 or by entering all features manually.
 
+VYBE is a recommendation application, not a music player. It identifies songs
+by title and artist but does not stream, preview, or play audio.
+
 ## 2. Problem statement
 
 Traditional music discovery often assumes that listening history fully
@@ -49,6 +52,7 @@ preferences and recommendations.
 - Rank candidates using retrieval relevance, feature similarity, and
   constraints.
 - Return five catalog-grounded recommendations.
+- Display identifying song information without providing playback.
 - Explain recommendations in plain language.
 - Expose deterministic score details on request.
 - Refine a mix with quick controls or natural-language instructions.
@@ -114,13 +118,17 @@ preferences and recommendations.
 
 - User accounts and cross-device synchronization
 - Public user-song sharing
-- Full commercial streaming
+- Audio streaming, previews, and playback
 - Spotify or Apple Music integration
 - Payments or subscriptions
 - Social feeds and friend graphs
 - Collaborative playlists
 - Model fine-tuning
 - Production cloud deployment
+
+Popularity and familiarity are not supported recommendation features. They are
+not reliably inferable from audio, change over time, and cannot reasonably be
+provided by listeners adding their own songs.
 
 ## 8. UX requirements
 
@@ -138,8 +146,8 @@ preferences and recommendations.
 
 - Require the user to confirm ownership or permission before audio analysis.
 - Keep user-added songs private in the MVP.
-- Delete uploaded audio after analysis by default.
-- Retain only approved metadata and feature values when audio is deleted.
+- Delete uploaded audio when analysis finishes or fails.
+- Retain only user-approved metadata, derived features, and provenance.
 - Never commit audio, credentials, raw logs, or generated private indexes.
 - Do not log raw user prompts by default.
 - Provide an explicit removal action for user-added song records.

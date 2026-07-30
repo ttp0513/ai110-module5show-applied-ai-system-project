@@ -20,12 +20,12 @@ Every built-in or user-added song must expose the same recommendation fields.
 | `liveness` | float | Yes | 0.0 through 1.0 |
 | `release_year` | integer | Yes | Configured historical through current year |
 | `duration_seconds` | integer | Yes | Positive supported duration |
-| `popularity` | integer | Yes | 0 through 100 |
 | `source` | enum | Yes | `built_in`, `upload`, or `manual` |
 | `owner_scope` | enum | Yes | `public_catalog` or `private_catalog` |
 
-Popularity cannot be inferred from audio. A user-added song defaults to zero
-unless the user supplies a value or a future approved data source provides one.
+Popularity and familiarity are intentionally excluded. They cannot be
+determined from the audio itself, are difficult to maintain accurately, and
+would treat built-in and user-added songs inconsistently.
 
 ## 2. Feature provenance
 
@@ -117,7 +117,6 @@ Audio analysis may:
 It must not:
 
 - Claim perfect or objective understanding.
-- Infer popularity from sound.
 - Save results without user review.
 - Make uploaded audio public.
 - Treat model confidence as certainty.
@@ -125,7 +124,14 @@ It must not:
 Partial success is valid. Measured or validated fields must be preserved while
 the user manually completes missing fields.
 
-## 8. Failure contract
+## 8. Playback contract
+
+VYBE returns recommendation metadata and explanations only. It does not
+stream, preview, or play built-in or user-uploaded songs. Audio uploads are
+temporary analysis inputs rather than playable library assets. Temporary audio
+must be deleted when analysis finishes, fails, or is cancelled.
+
+## 9. Failure contract
 
 | Failure | Required behavior |
 |---|---|

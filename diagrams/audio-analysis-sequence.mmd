@@ -1,0 +1,26 @@
+sequenceDiagram
+    actor Listener
+    participant UI
+    participant API
+    participant Upload as Upload Validator
+    participant Analyzer as Music Analyzer
+    participant Review as Feature Validator
+    participant Catalog as Private Catalog
+    participant Index as Retrieval Index
+
+    Listener->>UI: Select owned or permitted audio
+    UI->>API: Upload for temporary analysis
+    API->>Upload: Validate signature, size, duration
+    alt Invalid file
+        Upload-->>UI: Safe validation error
+    else Valid file
+        Upload->>Analyzer: Normalized temporary audio
+        Analyzer-->>Review: Measurements, estimates, provenance
+        Review-->>UI: Reviewable feature proposal
+        Listener->>UI: Correct and approve values
+        UI->>API: Confirm canonical song
+        API->>Catalog: Save private song and provenance
+        Catalog->>Index: Index approved song document
+        Index-->>UI: Song available for recommendations
+        API->>Upload: Delete temporary audio
+    end

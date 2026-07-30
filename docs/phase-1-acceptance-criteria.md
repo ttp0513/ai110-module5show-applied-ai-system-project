@@ -47,7 +47,7 @@ editable regardless of measured accuracy.
 - API keys and secrets are absent from source control.
 - Uploaded filenames cannot control storage paths.
 - File content is validated independently of its extension.
-- Audio is private and deleted after analysis by default.
+- Audio is private and deleted when analysis finishes, fails, or is cancelled.
 - Raw prompts and audio are not written to standard logs.
 - Another session cannot retrieve a user's private songs.
 - Public error responses do not contain stack traces or secrets.
