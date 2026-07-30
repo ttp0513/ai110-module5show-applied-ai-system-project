@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="VYBE creates transparent music recommendations from your selected mood and sound preferences."
+    >
+    <title>VYBE — Find your next sound</title>
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script src="/static/js/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#preference-builder">Skip to preference builder</a>
+
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="VYBE home">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>VYBE</span>
+      </a>
+      <div class="header-meta">
+        <span class="system-pill">
+          <span class="status-dot" aria-hidden="true"></span>
+          Deterministic mode
+        </span>
+        <a class="text-link" href="/docs">API docs</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span>01</span> Your moment, translated into sound</p>
+          <h1 id="hero-title">Find music that fits <em>right now.</em></h1>
+          <p class="hero-description">
+            Shape your mood, tune the details, and get five recommendations
+            with a clear explanation of every match.
+          </p>
+          <a class="primary-link" href="#preference-builder">
+            Build my mix
+            <span aria-hidden="true">↘</span>
+          </a>
+        </div>
+
+        <div class="hero-visual" aria-label="VYBE recommendation system preview">
+          <div class="orbit orbit-one" aria-hidden="true"></div>
+          <div class="orbit orbit-two" aria-hidden="true"></div>
+          <div class="record-card">
+            <div class="record-art" aria-hidden="true">
+              <span class="record-ring"></span>
+              <span class="record-center">V</span>
+            </div>
+            <div class="record-copy">
+              <span class="micro-label">CURRENT SIGNAL</span>
+              <strong id="signal-summary">Waiting for your vibe</strong>
+              <span id="catalog-summary">Loading catalog…</span>
+            </div>
+          </div>
+          <div class="floating-tag tag-one">MOOD / 20%</div>
+          <div class="floating-tag tag-two">ENERGY / 12%</div>
+        </div>
+      </section>
+
+      <section class="builder-section" id="preference-builder" aria-labelledby="builder-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow"><span>02</span> Manual vibe builder</p>
+            <h2 id="builder-title">What should this mix feel like?</h2>
+          </div>
+          <p>
+            Choose at least one preference. Only what you select affects the score.
+          </p>
+        </div>
+
+        <form id="recommendation-form" class="preference-layout">
+          <div class="preference-main">
+            <fieldset class="choice-group">
+              <legend>
+                <span class="step-number">A</span>
+                Pick your genres
+              </legend>
+              <p class="field-help">Choose one or more. Related genres receive partial credit.</p>
+              <div id="genre-options" class="chip-grid" aria-live="polite">
+                <span class="skeleton-chip"></span>
+                <span class="skeleton-chip"></span>
+                <span class="skeleton-chip"></span>
+              </div>
+            </fieldset>
+
+            <fieldset class="choice-group">
+              <legend>
+                <span class="step-number">B</span>
+                Set the mood
+              </legend>
+              <p class="field-help">Choose the emotional direction of the recommendations.</p>
+              <div id="mood-options" class="chip-grid" aria-live="polite">
+                <span class="skeleton-chip"></span>
+                <span class="skeleton-chip"></span>
+                <span class="skeleton-chip"></span>
+              </div>
+            </fieldset>
+
+            <details class="advanced-panel">
+              <summary>
+                <span>
+                  <span class="step-number">C</span>
+                  Fine-tune the sound
+                </span>
+                <span class="summary-hint">Optional</span>
+              </summary>
+              <div class="slider-grid">
+                <div class="slider-control" data-preference="target_energy">
+                  <div class="slider-heading">
+                    <label for="energy">Energy</label>
+                    <label class="use-toggle">
+                      <input type="checkbox" class="feature-toggle">
+                      <span>Use</span>
+                    </label>
+                  </div>
+                  <output for="energy">65%</output>
+                  <input id="energy" type="range" min="0" max="100" value="65">
+                  <div class="range-labels"><span>Calm</span><span>Electric</span></div>
+                </div>
+
+                <div class="slider-control" data-preference="target_valence">
+                  <div class="slider-heading">
+                    <label for="valence">Positivity</label>
+                    <label class="use-toggle">
+                      <input type="checkbox" class="feature-toggle">
+                      <span>Use</span>
+                    </label>
+                  </div>
+                  <output for="valence">70%</output>
+                  <input id="valence" type="range" min="0" max="100" value="70">
+                  <div class="range-labels"><span>Dark</span><span>Bright</span></div>
+                </div>
+
+                <div class="slider-control" data-preference="target_danceability">
+                  <div class="slider-heading">
+                    <label for="danceability">Danceability</label>
+                    <label class="use-toggle">
+                      <input type="checkbox" class="feature-toggle">
+                      <span>Use</span>
+                    </label>
+                  </div>
+                  <output for="danceability">60%</output>
+                  <input id="danceability" type="range" min="0" max="100" value="60">
+                  <div class="range-labels"><span>Still</span><span>Movement</span></div>
+                </div>
+
+                <div class="slider-control" data-preference="target_instrumentalness">
+                  <div class="slider-heading">
+                    <label for="instrumentalness">Instrumentalness</label>
+                    <label class="use-toggle">
+                      <input type="checkbox" class="feature-toggle">
+                      <span>Use</span>
+                    </label>
+                  </div>
+                  <output for="instrumentalness">50%</output>
+                  <input id="instrumentalness" type="range" min="0" max="100" value="50">
+                  <div class="range-labels"><span>Vocals</span><span>Instrumental</span></div>
+                </div>
+
+                <div class="slider-control" data-preference="target_acousticness">
+                  <div class="slider-heading">
+                    <label for="acousticness">Acousticness</label>
+                    <label class="use-toggle">
+                      <input type="checkbox" class="feature-toggle">
+                      <span>Use</span>
+                    </label>
+                  </div>
+                  <output for="acousticness">45%</output>
+                  <input id="acousticness" type="range" min="0" max="100" value="45">
+                  <div class="range-labels"><span>Electronic</span><span>Acoustic</span></div>
+                </div>
+
+                <div class="slider-control" data-preference="target_tempo_bpm">
+                  <div class="slider-heading">
+                    <label for="tempo">Tempo</label>
+                    <label class="use-toggle">
+                      <input type="checkbox" class="feature-toggle">
+                      <span>Use</span>
+                    </label>
+                  </div>
+                  <output for="tempo">110 BPM</output>
+                  <input id="tempo" type="range" min="40" max="200" value="110">
+                  <div class="range-labels"><span>Slow</span><span>Fast</span></div>
+                </div>
+              </div>
+
+              <div class="avoid-grid">
+                <label>
+                  Avoid a genre
+                  <select id="excluded-genre">
+                    <option value="">None</option>
+                  </select>
+                </label>
+                <label>
+                  Avoid a mood
+                  <select id="excluded-mood">
+                    <option value="">None</option>
+                  </select>
+                </label>
+              </div>
+            </details>
+          </div>
+
+          <aside class="mix-summary" aria-labelledby="mix-summary-title">
+            <div>
+              <p class="micro-label">YOUR SIGNAL</p>
+              <h3 id="mix-summary-title">Mix blueprint</h3>
+              <div id="selected-summary" class="selected-summary">
+                <span>Nothing selected yet</span>
+              </div>
+            </div>
+            <div class="summary-facts">
+              <div><span>Catalog</span><strong id="song-count">—</strong></div>
+              <div><span>Results</span><strong>5</strong></div>
+              <div><span>Mode</span><strong>Transparent</strong></div>
+            </div>
+            <p class="summary-note">
+              Unselected features are excluded from scoring. No popularity or
+              listening history is used.
+            </p>
+            <p id="form-error" class="form-error" role="alert" hidden></p>
+            <button id="submit-button" class="submit-button" type="submit">
+              <span>Generate recommendations</span>
+              <span aria-hidden="true">✦</span>
+            </button>
+          </aside>
+        </form>
+      </section>
+
+      <section id="results-section" class="results-section" aria-labelledby="results-title" hidden>
+        <div class="section-heading results-heading">
+          <div>
+            <p class="eyebrow"><span>03</span> Ranked for your signal</p>
+            <h2 id="results-title">Your recommendation set</h2>
+          </div>
+          <p id="results-summary" aria-live="polite"></p>
+        </div>
+        <div id="results-list" class="results-list"></div>
+      </section>
+
+      <section class="trust-section" aria-labelledby="trust-title">
+        <p class="eyebrow"><span>WHY VYBE</span> Built for clarity</p>
+        <h2 id="trust-title">No black box. No popularity contest.</h2>
+        <div class="trust-grid">
+          <article>
+            <span>01</span>
+            <h3>You choose the signal</h3>
+            <p>Only active preferences influence the ranking.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Every score is visible</h3>
+            <p>Open any result to inspect weights and contributions.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Recommendation only</h3>
+            <p>VYBE identifies songs. It never streams or plays them.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <a class="brand footer-brand" href="/" aria-label="VYBE home">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>VYBE</span>
+      </a>
+      <p>Transparent music discovery, shaped by you.</p>
+      <span>Phase 1–3 interface</span>
+    </footer>
+  </body>
+</html>

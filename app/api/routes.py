@@ -38,7 +38,7 @@ class CatalogOptionsResponse(BaseModel):
     recommendation_features: list[str]
 
 
-@router.get("/", tags=["application"])
+@router.get("/api", tags=["application"])
 def application_summary() -> dict[str, str]:
     """Identify the API while the product UI is developed in a later phase."""
 

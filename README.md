@@ -11,7 +11,8 @@ or correct those values before the track enters their private catalog.
 
 - **Phase 1 complete:** product requirements and system boundaries
 - **Phase 2 complete:** runnable scaffold, configuration, and architecture
-- **Phase 3 in review:** canonical catalog and deterministic recommendation
+- **Phase 3 complete:** canonical catalog and deterministic recommendation
+- **UI checkpoint in review:** responsive interface for Phases 1–3
 
 Semantic retrieval, AI, audio analysis, user-added songs, and the final UI are
 intentionally reserved for later phases.
@@ -39,6 +40,24 @@ intentionally reserved for later phases.
 
 - [Catalog and scoring design](docs/phase-3-catalog-and-recommender.md)
 - [Deterministic recommendation flow](diagrams/deterministic-recommendation-flow.mmd)
+
+## Phase 1–3 interface
+
+The current browser interface includes:
+
+- Product positioning and transparency principles
+- Catalog-backed genre and mood options
+- Optional energy, positivity, danceability, instrumentalness, acousticness,
+  and tempo controls
+- Genre and mood exclusions
+- Five deterministic recommendations
+- Expandable per-feature score contributions
+- Responsive mobile and desktop layouts
+- Keyboard focus, semantic form controls, reduced motion, and safe text
+  rendering
+
+It intentionally does not include natural-language AI, RAG, user-added songs,
+audio analysis, or playback. Those capabilities belong to later phases.
 
 ## Local setup
 
@@ -99,7 +118,7 @@ excluded from version control.
 
 1. Requirements and project definition
 2. Project setup and architecture — complete
-3. Song catalog and deterministic recommender — in review
+3. Song catalog and deterministic recommender — complete
 4. User song upload and manual entry
 5. AI audio analysis
 6. Retrieval-augmented generation

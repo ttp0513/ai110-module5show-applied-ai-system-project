@@ -31,8 +31,8 @@ def test_health_check() -> None:
     }
 
 
-def test_root_describes_scaffold() -> None:
-    response = asyncio.run(get("/"))
+def test_api_describes_current_phase() -> None:
+    response = asyncio.run(get("/api"))
 
     assert response.status_code == 200
     assert response.json()["status"] == "Phase 3 deterministic recommender"
