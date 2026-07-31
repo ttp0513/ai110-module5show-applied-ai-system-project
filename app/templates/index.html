@@ -326,7 +326,17 @@
           </div>
           <p id="results-summary" aria-live="polite"></p>
         </div>
-        <div id="results-list" class="results-list"></div>
+        <div id="refinement-bar" class="refinement-bar" hidden>
+          <div>
+            <span class="micro-label">SHAPE THE NEXT SET</span>
+            <p id="refinement-status">Skip anything that misses the moment.</p>
+          </div>
+          <button id="reset-refinement" class="secondary-button" type="button">
+            Restore skipped songs
+          </button>
+        </div>
+        <p id="refinement-message" class="form-error" role="status" hidden></p>
+        <div id="results-list" class="results-list" aria-live="polite"></div>
       </section>
 
       <section class="private-section" id="private-catalog" aria-labelledby="private-title">

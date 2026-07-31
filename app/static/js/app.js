@@ -5,6 +5,8 @@ const state = {
   analysisId: null,
   interpretedPreferences: null,
   hybridQuery: null,
+  lastPreferences: null,
+  skippedSongIds: new Set(),
 };
 
 const elements = {
@@ -22,6 +24,10 @@ const elements = {
   resultsSection: document.querySelector("#results-section"),
   resultsSummary: document.querySelector("#results-summary"),
   resultsList: document.querySelector("#results-list"),
+  refinementBar: document.querySelector("#refinement-bar"),
+  refinementStatus: document.querySelector("#refinement-status"),
+  refinementMessage: document.querySelector("#refinement-message"),
+  resetRefinement: document.querySelector("#reset-refinement"),
   songGenre: document.querySelector("#song-genre"),
   songMood: document.querySelector("#song-mood"),
   songForm: document.querySelector("#manual-song-form"),
@@ -184,7 +190,7 @@ function reasonRow(reason) {
   return row;
 }
 
-function resultCard(recommendation) {
+function resultCard(recommendation, allowRefinement) {
   const article = document.createElement("article");
   article.className = "result-card";
   const rank = document.createElement("span");
@@ -205,6 +211,15 @@ function resultCard(recommendation) {
     `${Math.round(recommendation.song.tempo_bpm)} BPM · ` +
     `${recommendation.song.release_year}`;
   main.append(title, artist, meta);
+  if (allowRefinement) {
+    const skip = document.createElement("button");
+    skip.className = "skip-result-button";
+    skip.type = "button";
+    skip.textContent = "Not this one";
+    skip.setAttribute("aria-label", `Skip ${recommendation.song.title}`);
+    skip.addEventListener("click", () => refineWithout(recommendation.song));
+    main.append(skip);
+  }
 
   const score = document.createElement("div");
   score.className = "result-score";
@@ -253,8 +268,9 @@ function resultCard(recommendation) {
 }
 
 function renderResults(payload) {
+  const allowRefinement = payload.mode === "hybrid" && Boolean(state.hybridQuery);
   elements.resultsList.replaceChildren(
-    ...payload.recommendations.map(resultCard),
+    ...payload.recommendations.map((item) => resultCard(item, allowRefinement)),
   );
   const modeSummary = payload.mode === "hybrid"
     ? `${payload.retrieved_candidate_count} retrieved · ` +
@@ -262,9 +278,62 @@ function renderResults(payload) {
     : `${payload.considered_song_count} songs considered`;
   elements.resultsSummary.textContent =
     `${modeSummary} · ${payload.filtered_song_count} filtered out`;
+  elements.refinementBar.hidden = !allowRefinement;
+  elements.resetRefinement.hidden = state.skippedSongIds.size === 0;
+  elements.refinementStatus.textContent = state.skippedSongIds.size
+    ? `${state.skippedSongIds.size} song${state.skippedSongIds.size === 1 ? "" : "s"} ` +
+      "skipped from this recommendation set."
+    : "Skip anything that misses the moment.";
   elements.resultsSection.hidden = false;
   elements.resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
+async function requestRefinement() {
+  elements.refinementMessage.hidden = true;
+  elements.resultsList.setAttribute("aria-busy", "true");
+  try {
+    const response = await fetch("/api/recommendations/refine?limit=5", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: state.hybridQuery,
+        preferences: state.lastPreferences,
+        excluded_song_ids: [...state.skippedSongIds],
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail?.[0]?.msg || "Results could not be refined.");
+    }
+    renderResults(await response.json());
+    return true;
+  } catch (error) {
+    elements.refinementMessage.textContent = error.message;
+    elements.refinementMessage.hidden = false;
+    return false;
+  } finally {
+    elements.resultsList.removeAttribute("aria-busy");
+  }
+}
+
+async function refineWithout(song) {
+  if (state.skippedSongIds.size >= 20) {
+    elements.refinementMessage.textContent =
+      "You have skipped 20 songs. Restore them to begin a fresh set.";
+    elements.refinementMessage.hidden = false;
+    return;
+  }
+  state.skippedSongIds.add(song.id);
+  const succeeded = await requestRefinement();
+  if (!succeeded) state.skippedSongIds.delete(song.id);
+}
+
+elements.resetRefinement.addEventListener("click", async () => {
+  const previousSkippedSongIds = new Set(state.skippedSongIds);
+  state.skippedSongIds.clear();
+  const succeeded = await requestRefinement();
+  if (!succeeded) state.skippedSongIds = previousSkippedSongIds;
+});
 
 function retrievalCard(candidate) {
   const article = document.createElement("article");
@@ -696,6 +765,8 @@ elements.form.addEventListener("submit", async (event) => {
     const requestBody = state.hybridQuery
       ? { query: state.hybridQuery, preferences: payload }
       : payload;
+    state.lastPreferences = payload;
+    state.skippedSongIds.clear();
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

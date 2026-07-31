@@ -30,6 +30,8 @@ def test_root_serves_preference_builder() -> None:
     assert 'id="audio-analysis-form"' in response.text
     assert 'id="retrieval-form"' in response.text
     assert 'id="interpretation-review"' in response.text
+    assert 'id="refinement-bar"' in response.text
+    assert 'id="reset-refinement"' in response.text
     assert "Grounded catalog retrieval" in response.text
     assert "audio is never kept or played" in response.text
     assert "play audio" not in response.text.lower()
@@ -48,3 +50,5 @@ def test_static_assets_are_available() -> None:
     assert "/api/retrieval/search" in script.text
     assert "/api/preferences/interpret" in script.text
     assert '"/api/recommendations?limit=5"' in script.text
+    assert '"/api/recommendations/refine?limit=5"' in script.text
+    assert "excluded_song_ids" in script.text
