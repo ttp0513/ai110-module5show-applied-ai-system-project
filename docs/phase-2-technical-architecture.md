@@ -23,7 +23,7 @@ preserving boundaries that can be extracted later if scale requires it.
 | `app.catalog` | Validated public and private song access | 3 and 4 |
 | `app.models` | Canonical domain and transport schemas | 3 and 4 |
 | `app.recommendation` | Deterministic scoring and hybrid ranking | 3 and 8 |
-| `app.retrieval` | Document construction, indexing, semantic search | 6 |
+| `app.retrieval` | Document construction and grounded catalog search | Implemented in 6 |
 | `app.ai` | Model adapters, prompts, extraction, explanation | 7 and 8 |
 | `app.services` | End-to-end use-case orchestration | 8 and 9 |
 | `app.validation` | Grounding, constraints, and output guardrails | 8 and 11 |
@@ -113,6 +113,7 @@ Planned routes are documented but not implemented until their owning phases:
 | `GET` | `/api/songs/private` | Implemented in 4 |
 | `POST` | `/api/songs/private` | Implemented in 4 |
 | `POST` | `/api/songs/analyze` | 5 and 9 |
+| `POST` | `/api/retrieval/search` | Implemented in 6 |
 | `GET` | `/api/jobs/{job_id}` | 5 and 9 |
 | `DELETE` | `/api/songs/private/{song_id}` | Implemented in 4 |
 

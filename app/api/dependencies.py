@@ -11,6 +11,7 @@ from app.audio.classifier import CatalogCategoryClassifier
 from app.catalog import CatalogRepository, SQLitePrivateSongRepository
 from app.config import get_settings
 from app.recommendation import DeterministicRecommender
+from app.retrieval import CatalogRetrievalService
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -27,6 +28,13 @@ def get_recommender() -> DeterministicRecommender:
     """Return the stateless deterministic recommendation service."""
 
     return DeterministicRecommender()
+
+
+@lru_cache
+def get_retrieval_service() -> CatalogRetrievalService:
+    """Return the stateless catalog-grounded retrieval service."""
+
+    return CatalogRetrievalService()
 
 
 @lru_cache

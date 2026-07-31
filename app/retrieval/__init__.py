@@ -1,1 +1,5 @@
-"""Catalog indexing and semantic retrieval (implemented in Phase 6)."""
+"""Catalog document construction and grounded retrieval."""
+
+from app.retrieval.service import CatalogRetrievalService
+
+__all__ = ["CatalogRetrievalService"]

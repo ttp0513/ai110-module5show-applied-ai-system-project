@@ -14,7 +14,8 @@ or correct those values before the track enters their private catalog.
 - **Phase 3 complete:** canonical catalog and deterministic recommendation
 - **Phase 3 prototype complete:** responsive deterministic interface
 - **Phase 4 complete:** anonymous private songs and manual entry
-- **Phase 5 in review:** temporary audio analysis and mandatory review
+- **Phase 5 complete:** temporary audio analysis and mandatory review
+- **Phase 6 in review:** grounded natural-language catalog retrieval
 
 Semantic retrieval, AI preference extraction, and grounded explanations are
 intentionally reserved for later phases.
@@ -83,6 +84,17 @@ analysis. Signal measurements and a specialized catalog-trained classifier
 prefill an editable review form. The upload is deleted before review; only
 approved feature values and provenance are stored.
 
+## Phase 6 documents
+
+- [Grounded catalog retrieval](docs/phase-6-grounded-retrieval.md)
+- [Grounded retrieval sequence](diagrams/grounded-retrieval-sequence.mmd)
+
+Phase 6 lets listeners search the caller-visible catalog with phrases such as
+“late-night coding beats.” A local TF-IDF retriever uses controlled music cues
+to return relevant approved records. Every explanation is generated from
+structured catalog evidence, private songs remain session-isolated, and
+unknown requests produce no invented candidates.
+
 ## Local setup
 
 Install Python 3.12, 3.13, or 3.14 before running these commands. Phase 2 was
@@ -144,8 +156,8 @@ excluded from version control.
 2. Project setup and architecture — complete
 3. Song catalog and deterministic recommender — complete
 4. Private songs and manual feature entry — complete
-5. AI audio analysis — in review
-6. Retrieval-augmented generation
+5. AI audio analysis — complete
+6. Retrieval and grounding foundation — in review
 7. AI preference extraction
 8. Hybrid ranking and grounded explanations
 9. Backend API

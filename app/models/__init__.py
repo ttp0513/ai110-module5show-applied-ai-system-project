@@ -17,6 +17,12 @@ from app.models.recommendation import (
     Recommendation,
     RecommendationResponse,
 )
+from app.models.retrieval import (
+    RetrievalCandidate,
+    RetrievalEvidence,
+    RetrievalQuery,
+    RetrievalResponse,
+)
 from app.models.song import Genre, Mood, Song, SongOwnerScope, SongSource
 
 __all__ = [
@@ -32,6 +38,10 @@ __all__ = [
     "PrivateSongRecord",
     "Recommendation",
     "RecommendationResponse",
+    "RetrievalCandidate",
+    "RetrievalEvidence",
+    "RetrievalQuery",
+    "RetrievalResponse",
     "Song",
     "SongOwnerScope",
     "SongSource",

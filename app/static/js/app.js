@@ -37,6 +37,13 @@ const elements = {
   cancelAnalysis: document.querySelector("#cancel-analysis-button"),
   manualSongPanel: document.querySelector("#manual-song-panel"),
   saveSongLabel: document.querySelector("#save-song-label"),
+  retrievalForm: document.querySelector("#retrieval-form"),
+  retrievalQuery: document.querySelector("#retrieval-query"),
+  retrievalButton: document.querySelector("#retrieval-button"),
+  retrievalMessage: document.querySelector("#retrieval-message"),
+  retrievalResults: document.querySelector("#retrieval-results"),
+  retrievalCount: document.querySelector("#retrieval-count"),
+  retrievalList: document.querySelector("#retrieval-list"),
 };
 
 function titleCase(value) {
@@ -222,6 +229,90 @@ function renderResults(payload) {
   elements.resultsSection.hidden = false;
   elements.resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
+function retrievalCard(candidate) {
+  const article = document.createElement("article");
+  article.className = "retrieval-card";
+
+  const rank = document.createElement("span");
+  rank.className = "retrieval-rank";
+  rank.textContent = String(candidate.rank).padStart(2, "0");
+
+  const content = document.createElement("div");
+  const title = document.createElement("h4");
+  title.textContent = candidate.song.title;
+  const metadata = document.createElement("small");
+  metadata.textContent =
+    `${candidate.song.artist} · ${candidate.song.genre} · ${candidate.song.mood}`;
+  const explanation = document.createElement("p");
+  explanation.textContent = candidate.grounded_explanation;
+  content.append(title, metadata, explanation);
+
+  const score = document.createElement("div");
+  score.className = "retrieval-score";
+  const value = document.createElement("strong");
+  value.textContent = `${Math.round(candidate.retrieval_score * 100)}%`;
+  const label = document.createElement("span");
+  label.textContent = "Text relevance";
+  score.append(value, label);
+
+  article.append(rank, content, score);
+  return article;
+}
+
+function renderRetrievalResults(payload) {
+  elements.retrievalResults.hidden = false;
+  elements.retrievalCount.textContent =
+    `${payload.searched_song_count} approved songs searched`;
+  if (!payload.candidates.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-private-state";
+    empty.textContent =
+      "No grounded catalog matches were found. Try a genre, mood, artist, or moment.";
+    elements.retrievalList.replaceChildren(empty);
+    return;
+  }
+  elements.retrievalList.replaceChildren(
+    ...payload.candidates.map(retrievalCard),
+  );
+}
+
+document.querySelectorAll(".example-prompts button").forEach((button) => {
+  button.addEventListener("click", () => {
+    elements.retrievalQuery.value = button.textContent;
+    elements.retrievalQuery.focus();
+  });
+});
+
+elements.retrievalForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  elements.retrievalMessage.hidden = true;
+  elements.retrievalButton.disabled = true;
+  elements.retrievalButton.querySelector("span").textContent =
+    "Searching approved songs…";
+
+  try {
+    const response = await fetch("/api/retrieval/search?limit=5", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: elements.retrievalQuery.value }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(
+        error.detail?.[0]?.msg || error.detail || "Catalog retrieval failed.",
+      );
+    }
+    renderRetrievalResults(await response.json());
+  } catch (error) {
+    elements.retrievalMessage.textContent = error.message;
+    elements.retrievalMessage.hidden = false;
+  } finally {
+    elements.retrievalButton.disabled = false;
+    elements.retrievalButton.querySelector("span").textContent =
+      "Find catalog matches";
+  }
+});
 
 function privateSongRow(record) {
   const row = document.createElement("div");

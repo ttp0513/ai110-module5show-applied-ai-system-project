@@ -28,6 +28,9 @@
 | D-018 | Use a catalog-trained KNN model for genre and mood estimates | Accepted | Provides a reproducible specialized model constrained to the app vocabulary |
 | D-019 | Keep unapproved audio proposals in process memory | Accepted | No upload bytes persist and abandoned drafts disappear on restart |
 | D-020 | Separate measurements, algorithms, AI estimates, and user corrections in provenance | Accepted | Prevents approximate audio analysis from being presented as fact |
+| D-021 | Start retrieval with local TF-IDF and controlled semantic cues | Accepted | Keeps Phase 6 reproducible and credential-free while preserving a future embedding adapter boundary |
+| D-022 | Rebuild the caller-visible retrieval index per request for the MVP | Accepted | Immediately reflects private-song ownership and deletion without stale index state |
+| D-023 | Generate Phase 6 explanations only from structured catalog evidence | Accepted | Unknown requests must return no match instead of hallucinated songs or attributes |
 
 ## Decisions still open
 

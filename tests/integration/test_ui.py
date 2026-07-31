@@ -28,6 +28,8 @@ def test_root_serves_preference_builder() -> None:
     assert 'id="manual-song-form"' in response.text
     assert 'id="private-song-list"' in response.text
     assert 'id="audio-analysis-form"' in response.text
+    assert 'id="retrieval-form"' in response.text
+    assert "Grounded catalog retrieval" in response.text
     assert "audio is never kept or played" in response.text
     assert "play audio" not in response.text.lower()
 
@@ -42,3 +44,4 @@ def test_static_assets_are_available() -> None:
     assert "/api/recommendations/deterministic" in script.text
     assert "/api/songs/private" in script.text
     assert "/api/songs/analyze" in script.text
+    assert "/api/retrieval/search" in script.text

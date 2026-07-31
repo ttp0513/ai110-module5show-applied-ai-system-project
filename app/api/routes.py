@@ -20,6 +20,7 @@ from app.api.dependencies import (
     get_catalog,
     get_private_catalog,
     get_recommender,
+    get_retrieval_service,
     get_session_id,
 )
 from app.audio import (
@@ -40,10 +41,13 @@ from app.models import (
     Mood,
     PrivateSongRecord,
     RecommendationResponse,
+    RetrievalQuery,
+    RetrievalResponse,
     UserPreferences,
 )
 from app.models.audio_analysis import AudioAnalysisApproval, AudioAnalysisProposal
 from app.recommendation import DeterministicRecommender
+from app.retrieval import CatalogRetrievalService
 
 router = APIRouter()
 CatalogDependency = Annotated[CatalogRepository, Depends(get_catalog)]
@@ -54,6 +58,10 @@ PrivateCatalogDependency = Annotated[
 RecommenderDependency = Annotated[
     DeterministicRecommender,
     Depends(get_recommender),
+]
+RetrievalDependency = Annotated[
+    CatalogRetrievalService,
+    Depends(get_retrieval_service),
 ]
 SessionDependency = Annotated[str, Depends(get_session_id)]
 AudioAnalysisDependency = Annotated[
@@ -96,7 +104,7 @@ def application_summary() -> dict[str, str]:
 
     return {
         "name": get_settings().app_name,
-        "status": "Phase 5 AI-assisted audio analysis",
+        "status": "Phase 6 grounded catalog retrieval",
         "documentation": "/docs",
     }
 
@@ -111,7 +119,7 @@ def health_check() -> HealthResponse:
         application=settings.app_name,
         environment=settings.environment,
         demo_mode=settings.demo_mode,
-        phase=5,
+        phase=6,
     )
 
 
@@ -171,6 +179,34 @@ def deterministic_recommendations(
         songs=catalog.list_all() + private_catalog.list_songs(session_id),
         limit=limit,
     )
+
+
+@router.post(
+    "/api/retrieval/search",
+    response_model=RetrievalResponse,
+    tags=["retrieval"],
+)
+def retrieve_catalog_candidates(
+    request: RetrievalQuery,
+    catalog: CatalogDependency,
+    private_catalog: PrivateCatalogDependency,
+    retrieval: RetrievalDependency,
+    session_id: SessionDependency,
+    limit: Annotated[int, Query(ge=1, le=20)] = 5,
+) -> RetrievalResponse:
+    """Retrieve caller-visible songs and ground output in canonical fields."""
+
+    settings = get_settings()
+    if len(request.query) > settings.max_prompt_length:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=(
+                "The discovery request exceeds the configured "
+                f"{settings.max_prompt_length}-character limit."
+            ),
+        )
+    songs = catalog.list_all() + private_catalog.list_songs(session_id)
+    return retrieval.search(request.query, songs, limit)
 
 
 @router.get(

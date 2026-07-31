@@ -63,10 +63,61 @@
         </div>
       </section>
 
+      <section class="discovery-section" id="natural-discovery" aria-labelledby="discovery-title">
+        <div class="discovery-shell">
+          <div>
+            <p class="eyebrow"><span>02</span> Grounded catalog retrieval</p>
+            <h2 id="discovery-title">Describe the sound in your head.</h2>
+            <p class="discovery-intro">
+              Search by moment, mood, genre, artist, or sound. VYBE retrieves
+              only real songs from the catalog you can access.
+            </p>
+          </div>
+          <form id="retrieval-form" class="retrieval-form">
+            <label for="retrieval-query">Your vibe</label>
+            <div class="retrieval-composer">
+              <textarea
+                id="retrieval-query"
+                name="query"
+                minlength="3"
+                maxlength="1000"
+                rows="3"
+                placeholder="Try: late-night coding with cozy instrumental beats"
+                required
+              ></textarea>
+              <button id="retrieval-button" class="submit-button" type="submit">
+                <span>Find catalog matches</span>
+                <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+            <div class="example-prompts" aria-label="Example discovery requests">
+              <button type="button">late-night coding beats</button>
+              <button type="button">romantic futuristic night drive</button>
+              <button type="button">bright acoustic morning</button>
+            </div>
+            <p class="manual-privacy-note">
+              Phase 6 retrieves grounded candidates. Hybrid recommendation
+              ranking arrives in Phase 8. Your request is not written to logs.
+            </p>
+            <p id="retrieval-message" class="form-error" role="status" hidden></p>
+          </form>
+        </div>
+        <div id="retrieval-results" class="retrieval-results" hidden>
+          <div class="retrieval-results-heading">
+            <div>
+              <p class="micro-label">CATALOG EVIDENCE</p>
+              <h3>Retrieved candidates</h3>
+            </div>
+            <span id="retrieval-count"></span>
+          </div>
+          <div id="retrieval-list" class="retrieval-list" aria-live="polite"></div>
+        </div>
+      </section>
+
       <section class="builder-section" id="preference-builder" aria-labelledby="builder-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow"><span>02</span> Manual vibe builder</p>
+            <p class="eyebrow"><span>03</span> Manual vibe builder</p>
             <h2 id="builder-title">What should this mix feel like?</h2>
           </div>
           <p>
@@ -236,7 +287,7 @@
       <section id="results-section" class="results-section" aria-labelledby="results-title" hidden>
         <div class="section-heading results-heading">
           <div>
-            <p class="eyebrow"><span>03</span> Ranked for your signal</p>
+            <p class="eyebrow"><span>04</span> Ranked for your signal</p>
             <h2 id="results-title">Your recommendation set</h2>
           </div>
           <p id="results-summary" aria-live="polite"></p>
@@ -247,7 +298,7 @@
       <section class="private-section" id="private-catalog" aria-labelledby="private-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow"><span>04</span> Your private catalog</p>
+            <p class="eyebrow"><span>05</span> Your private catalog</p>
             <h2 id="private-title">Bring your own song data.</h2>
           </div>
           <p>
@@ -470,7 +521,7 @@
         <span>VYBE</span>
       </a>
       <p>Transparent music discovery, shaped by you.</p>
-      <span>Phase 5 prototype</span>
+      <span>Phase 6 prototype</span>
     </footer>
   </body>
 </html>

@@ -1,0 +1,26 @@
+sequenceDiagram
+    actor Listener
+    participant UI
+    participant API
+    participant Public as Built-in Catalog
+    participant Private as SQLite Private Catalog
+    participant Docs as Document Builder
+    participant Search as TF-IDF Retriever
+    participant Ground as Grounding Template
+
+    Listener->>UI: Describe a vibe or moment
+    UI->>API: POST bounded retrieval query
+    API->>Public: Load approved built-in songs
+    API->>Private: Load caller-owned private songs
+    Public-->>API: Public records
+    Private-->>API: Session-scoped records
+    API->>Docs: Build derived song documents
+    Docs->>Search: Caller-visible documents
+    Search->>Search: Vectorize and score cosine relevance
+    alt No positive relevance
+        Search-->>UI: No candidates and safe guidance
+    else Relevant records found
+        Search->>Ground: Ranked canonical songs
+        Ground->>Ground: Generate from catalog facts only
+        Ground-->>UI: Candidates, scores, and evidence
+    end
