@@ -2,14 +2,31 @@
 
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Response,
+    UploadFile,
+    status,
+)
 from pydantic import BaseModel
 
 from app.api.dependencies import (
+    get_audio_analysis_service,
     get_catalog,
     get_private_catalog,
     get_recommender,
     get_session_id,
+)
+from app.audio import (
+    AnalysisDraftNotFound,
+    AudioAnalysisError,
+    AudioAnalysisService,
+    AudioValidationError,
 )
 from app.catalog import (
     CatalogRepository,
@@ -25,6 +42,7 @@ from app.models import (
     RecommendationResponse,
     UserPreferences,
 )
+from app.models.audio_analysis import AudioAnalysisApproval, AudioAnalysisProposal
 from app.recommendation import DeterministicRecommender
 
 router = APIRouter()
@@ -38,6 +56,10 @@ RecommenderDependency = Annotated[
     Depends(get_recommender),
 ]
 SessionDependency = Annotated[str, Depends(get_session_id)]
+AudioAnalysisDependency = Annotated[
+    AudioAnalysisService,
+    Depends(get_audio_analysis_service),
+]
 
 
 class HealthResponse(BaseModel):
@@ -74,7 +96,7 @@ def application_summary() -> dict[str, str]:
 
     return {
         "name": get_settings().app_name,
-        "status": "Phase 4 private song catalog",
+        "status": "Phase 5 AI-assisted audio analysis",
         "documentation": "/docs",
     }
 
@@ -89,7 +111,7 @@ def health_check() -> HealthResponse:
         application=settings.app_name,
         environment=settings.environment,
         demo_mode=settings.demo_mode,
-        phase=4,
+        phase=5,
     )
 
 
@@ -186,6 +208,89 @@ def create_private_song(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(error),
         ) from error
+
+
+@router.post(
+    "/api/songs/analyze",
+    response_model=AudioAnalysisProposal,
+    tags=["audio analysis"],
+)
+async def analyze_audio(
+    analysis_service: AudioAnalysisDependency,
+    session_id: SessionDependency,
+    file: Annotated[UploadFile, File(description="Temporary audio upload")],
+    rights_confirmed: Annotated[bool, Form()],
+) -> AudioAnalysisProposal:
+    """Analyze authorized audio temporarily and return editable suggestions."""
+
+    if not rights_confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Confirm that you have permission to analyze this audio.",
+        )
+    try:
+        return await analysis_service.propose(session_id, file)
+    except (AudioValidationError, AudioAnalysisError) as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(error),
+        ) from error
+
+
+@router.post(
+    "/api/songs/analyzed/{analysis_id}/approve",
+    response_model=PrivateSongRecord,
+    status_code=status.HTTP_201_CREATED,
+    tags=["audio analysis"],
+)
+def approve_audio_analysis(
+    analysis_id: str,
+    approval: AudioAnalysisApproval,
+    analysis_service: AudioAnalysisDependency,
+    private_catalog: PrivateCatalogDependency,
+    session_id: SessionDependency,
+) -> PrivateSongRecord:
+    """Save only user-reviewed values; uploaded audio is already deleted."""
+
+    try:
+        return analysis_service.approve(
+            session_id,
+            analysis_id,
+            approval.song,
+            private_catalog,
+        )
+    except AnalysisDraftNotFound as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis draft not found.",
+        ) from error
+    except PrivateCatalogLimitError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(error),
+        ) from error
+
+
+@router.delete(
+    "/api/songs/analyzed/{analysis_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["audio analysis"],
+)
+def cancel_audio_analysis(
+    analysis_id: str,
+    analysis_service: AudioAnalysisDependency,
+    session_id: SessionDependency,
+) -> Response:
+    """Discard an unapproved analysis proposal."""
+
+    try:
+        analysis_service.cancel(session_id, analysis_id)
+    except AnalysisDraftNotFound as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis draft not found.",
+        ) from error
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete(

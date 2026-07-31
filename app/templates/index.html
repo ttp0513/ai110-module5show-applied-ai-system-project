@@ -252,12 +252,64 @@
           </div>
           <p>
             Add a song manually and it joins this session’s recommendations.
-            No audio is uploaded, stored, or played in this phase.
+            Or use temporary AI analysis. Only reviewed values are saved;
+            audio is never kept or played.
           </p>
         </div>
 
         <div class="private-layout">
-          <details class="manual-song-panel">
+          <details class="manual-song-panel analysis-panel">
+            <summary>
+              <span>
+                <span class="step-number">AI</span>
+                Analyze an audio file
+              </span>
+              <span class="summary-hint">Review required</span>
+            </summary>
+            <form id="audio-analysis-form" class="audio-analysis-form">
+              <label class="file-drop">
+                <span>Choose your audio</span>
+                <small>WAV, FLAC, OGG, MP3, or M4A · up to 25 MiB · no playback</small>
+                <input
+                  id="audio-file"
+                  name="file"
+                  type="file"
+                  accept=".wav,.flac,.ogg,.mp3,.m4a,audio/*"
+                  required
+                >
+              </label>
+              <label class="rights-confirmation">
+                <input name="rights_confirmed" type="checkbox" required>
+                <span>I own this audio or have permission to analyze it.</span>
+              </label>
+              <p class="manual-privacy-note">
+                The file is deleted after analysis, including when analysis fails.
+                Suggestions are not saved until you approve them.
+              </p>
+              <p id="analysis-message" class="form-error" role="status" hidden></p>
+              <button id="analyze-button" class="submit-button compact-button" type="submit">
+                <span>Analyze temporarily</span>
+                <span aria-hidden="true">✦</span>
+              </button>
+            </form>
+          </details>
+
+          <section id="analysis-review" class="analysis-review" hidden aria-live="polite">
+            <p class="micro-label">AI PROPOSAL READY</p>
+            <h3>Review every value before saving</h3>
+            <p id="analysis-file-summary"></p>
+            <div id="analysis-warnings" class="analysis-warnings"></div>
+            <div id="analysis-confidence" class="analysis-confidence"></div>
+            <button id="cancel-analysis-button" class="delete-song-button" type="button">
+              Discard proposal
+            </button>
+            <p class="manual-privacy-note">
+              Suggestions are in the form below. Correct anything that looks wrong,
+              then approve.
+            </p>
+          </section>
+
+          <details id="manual-song-panel" class="manual-song-panel">
             <summary>
               <span>
                 <span class="step-number">+</span>
@@ -358,7 +410,7 @@
                   <p id="song-form-message" class="form-error" role="status" hidden></p>
                 </div>
                 <button id="save-song-button" class="submit-button compact-button" type="submit">
-                  <span>Save private song</span>
+                  <span id="save-song-label">Save private song</span>
                   <span aria-hidden="true">＋</span>
                 </button>
               </div>
@@ -381,8 +433,8 @@
             <div class="phase-five-note">
               <span aria-hidden="true">✦</span>
               <div>
-                <strong>Audio analysis comes next</strong>
-                <p>Phase 5 will estimate these values from a temporary upload.</p>
+                <strong>Review-first AI analysis</strong>
+                <p>Audio is temporary. Only approved feature values persist.</p>
               </div>
             </div>
           </aside>
@@ -418,7 +470,7 @@
         <span>VYBE</span>
       </a>
       <p>Transparent music discovery, shaped by you.</p>
-      <span>Phase 4 prototype</span>
+      <span>Phase 5 prototype</span>
     </footer>
   </body>
 </html>

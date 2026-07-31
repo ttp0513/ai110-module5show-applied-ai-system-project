@@ -6,6 +6,8 @@ from typing import Annotated
 
 from fastapi import Cookie, Depends, Response
 
+from app.audio import AnalysisDraftRepository, AudioAnalysisService, AudioAnalyzer
+from app.audio.classifier import CatalogCategoryClassifier
 from app.catalog import CatalogRepository, SQLitePrivateSongRepository
 from app.config import get_settings
 from app.recommendation import DeterministicRecommender
@@ -38,6 +40,28 @@ def get_private_catalog() -> SQLitePrivateSongRepository:
         else PROJECT_ROOT / configured_path
     )
     return SQLitePrivateSongRepository(database_path)
+
+
+@lru_cache
+def get_analysis_drafts() -> AnalysisDraftRepository:
+    """Return non-persistent, audio-free proposals awaiting review."""
+
+    return AnalysisDraftRepository()
+
+
+@lru_cache
+def get_audio_analysis_service() -> AudioAnalysisService:
+    """Build the bounded Phase 5 audio analysis workflow."""
+
+    settings = get_settings()
+    classifier = CatalogCategoryClassifier(get_catalog().list_all())
+    analyzer = AudioAnalyzer(classifier, settings.max_audio_duration_seconds)
+    return AudioAnalysisService(
+        analyzer=analyzer,
+        drafts=get_analysis_drafts(),
+        upload_directory=PROJECT_ROOT / "data" / "uploads",
+        max_upload_bytes=settings.max_audio_upload_bytes,
+    )
 
 
 def get_session_id(

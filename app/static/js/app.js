@@ -2,6 +2,7 @@ const state = {
   options: null,
   selectedGenres: new Set(),
   selectedMoods: new Set(),
+  analysisId: null,
 };
 
 const elements = {
@@ -26,6 +27,16 @@ const elements = {
   saveSongButton: document.querySelector("#save-song-button"),
   privateSongCount: document.querySelector("#private-song-count"),
   privateSongList: document.querySelector("#private-song-list"),
+  analysisForm: document.querySelector("#audio-analysis-form"),
+  analysisMessage: document.querySelector("#analysis-message"),
+  analyzeButton: document.querySelector("#analyze-button"),
+  analysisReview: document.querySelector("#analysis-review"),
+  analysisFileSummary: document.querySelector("#analysis-file-summary"),
+  analysisWarnings: document.querySelector("#analysis-warnings"),
+  analysisConfidence: document.querySelector("#analysis-confidence"),
+  cancelAnalysis: document.querySelector("#cancel-analysis-button"),
+  manualSongPanel: document.querySelector("#manual-song-panel"),
+  saveSongLabel: document.querySelector("#save-song-label"),
 };
 
 function titleCase(value) {
@@ -310,6 +321,96 @@ function buildManualSongPayload(form) {
   return payload;
 }
 
+function populateReviewForm(song) {
+  Object.entries(song).forEach(([name, value]) => {
+    const input = elements.songForm.elements[name];
+    if (!input) return;
+    const normalized = [
+      "energy",
+      "valence",
+      "danceability",
+      "acousticness",
+      "instrumentalness",
+      "liveness",
+    ].includes(name);
+    input.value = normalized ? Math.round(Number(value) * 100) : value;
+    if (input.type === "range") input.dispatchEvent(new Event("input"));
+  });
+}
+
+function showAnalysisProposal(proposal) {
+  state.analysisId = proposal.analysis_id;
+  populateReviewForm(proposal.suggested_song);
+  elements.analysisFileSummary.textContent =
+    `${proposal.file_info.original_filename} · ` +
+    `${proposal.file_info.detected_format.toUpperCase()} · audio already deleted`;
+  elements.analysisWarnings.replaceChildren(
+    ...proposal.warnings.map((warning) => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = `! ${warning}`;
+      return paragraph;
+    }),
+  );
+  const predictions = proposal.provenance.filter(
+    (item) => item.source === "ai_estimated",
+  );
+  elements.analysisConfidence.replaceChildren(
+    ...predictions.map((item) => {
+      const badge = document.createElement("span");
+      const confidence = Math.round((item.confidence || 0) * 100);
+      badge.textContent =
+        `${titleCase(item.feature_name)} estimate · ${confidence}% confidence`;
+      return badge;
+    }),
+  );
+  elements.analysisReview.hidden = false;
+  elements.manualSongPanel.open = true;
+  elements.saveSongLabel.textContent = "Approve reviewed values";
+  elements.manualSongPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function discardAnalysis() {
+  if (state.analysisId) {
+    await fetch(`/api/songs/analyzed/${state.analysisId}`, { method: "DELETE" });
+  }
+  state.analysisId = null;
+  elements.analysisReview.hidden = true;
+  elements.saveSongLabel.textContent = "Save private song";
+}
+
+elements.analysisForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  elements.analysisMessage.hidden = true;
+  elements.analyzeButton.disabled = true;
+  elements.analyzeButton.querySelector("span").textContent = "Analyzing safely…";
+  if (state.analysisId) await discardAnalysis();
+
+  try {
+    const response = await fetch("/api/songs/analyze", {
+      method: "POST",
+      body: new FormData(elements.analysisForm),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Audio could not be analyzed.");
+    }
+    showAnalysisProposal(await response.json());
+    elements.analysisForm.reset();
+  } catch (error) {
+    elements.analysisMessage.textContent = error.message;
+    elements.analysisMessage.hidden = false;
+  } finally {
+    elements.analyzeButton.disabled = false;
+    elements.analyzeButton.querySelector("span").textContent = "Analyze temporarily";
+  }
+});
+
+elements.cancelAnalysis.addEventListener("click", async () => {
+  await discardAnalysis();
+  elements.songForm.reset();
+  releaseYearInput.value = String(currentYear);
+});
+
 document.querySelectorAll(".slider-control").forEach((control) => {
   const slider = control.querySelector('input[type="range"]');
   const toggle = control.querySelector(".feature-toggle");
@@ -388,16 +489,23 @@ elements.songForm.addEventListener("submit", async (event) => {
   elements.saveSongButton.querySelector("span").textContent = "Saving…";
 
   try {
-    const response = await fetch("/api/songs/private", {
+    const endpoint = state.analysisId
+      ? `/api/songs/analyzed/${state.analysisId}/approve`
+      : "/api/songs/private";
+    const song = buildManualSongPayload(elements.songForm);
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(buildManualSongPayload(elements.songForm)),
+      body: JSON.stringify(state.analysisId ? { song } : song),
     });
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail?.[0]?.msg || error.detail || "Song could not be saved.");
     }
     elements.songForm.reset();
+    state.analysisId = null;
+    elements.analysisReview.hidden = true;
+    elements.saveSongLabel.textContent = "Save private song";
     releaseYearInput.value = String(currentYear);
     document.querySelectorAll(".manual-feature-grid input[type='range']").forEach(
       (input) => {

@@ -1,5 +1,10 @@
 """Validated domain and transport models."""
 
+from app.models.audio_analysis import (
+    AudioAnalysisApproval,
+    AudioAnalysisProposal,
+    AudioFileInfo,
+)
 from app.models.preferences import UserPreferences
 from app.models.private_song import (
     FeatureProvenance,
@@ -15,6 +20,9 @@ from app.models.recommendation import (
 from app.models.song import Genre, Mood, Song, SongOwnerScope, SongSource
 
 __all__ = [
+    "AudioAnalysisApproval",
+    "AudioAnalysisProposal",
+    "AudioFileInfo",
     "FeatureReason",
     "FeatureProvenance",
     "FeatureSource",

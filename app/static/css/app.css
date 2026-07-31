@@ -793,6 +793,98 @@ select {
   overflow: hidden;
 }
 
+.analysis-panel {
+  border-color: rgba(185, 255, 77, 0.42);
+  grid-column: 1;
+}
+
+.audio-analysis-form {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 16px;
+  padding: 28px;
+}
+
+.file-drop {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+}
+
+.file-drop span {
+  font-weight: 700;
+}
+
+.file-drop small,
+.analysis-review > p {
+  color: var(--muted);
+}
+
+.file-drop input {
+  margin-top: 8px;
+}
+
+.rights-confirmation {
+  align-items: flex-start;
+  display: flex;
+  gap: 10px;
+}
+
+.rights-confirmation input {
+  accent-color: var(--acid);
+  margin-top: 3px;
+}
+
+.analysis-review {
+  background: rgba(185, 255, 77, 0.055);
+  border: 1px solid rgba(185, 255, 77, 0.42);
+  border-radius: var(--radius);
+  grid-column: 1;
+  padding: 24px;
+}
+
+.analysis-review h3 {
+  margin: 6px 0 10px;
+}
+
+.analysis-warnings {
+  display: grid;
+  gap: 6px;
+  margin: 16px 0;
+}
+
+.analysis-warnings p {
+  color: #f4d58d;
+  font-size: 14px;
+  margin: 0;
+}
+
+.analysis-confidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.analysis-confidence span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+#manual-song-panel {
+  grid-column: 1;
+}
+
+.private-list-panel {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+}
+
 .manual-song-panel > summary {
   align-items: center;
   cursor: pointer;
@@ -1067,6 +1159,14 @@ footer {
 
   .private-layout {
     grid-template-columns: 1fr;
+  }
+
+  .analysis-panel,
+  .analysis-review,
+  #manual-song-panel,
+  .private-list-panel {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .mix-summary {

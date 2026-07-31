@@ -13,10 +13,11 @@ or correct those values before the track enters their private catalog.
 - **Phase 2 complete:** runnable scaffold, configuration, and architecture
 - **Phase 3 complete:** canonical catalog and deterministic recommendation
 - **Phase 3 prototype complete:** responsive deterministic interface
-- **Phase 4 in review:** anonymous private songs and manual entry
+- **Phase 4 complete:** anonymous private songs and manual entry
+- **Phase 5 in review:** temporary audio analysis and mandatory review
 
-Semantic retrieval, AI preference extraction, audio analysis, and the final AI
-interface are intentionally reserved for later phases.
+Semantic retrieval, AI preference extraction, and grounded explanations are
+intentionally reserved for later phases.
 
 ## Phase 1 documents
 
@@ -71,6 +72,16 @@ without uploading audio. The song remains isolated to an opaque anonymous
 session, participates in deterministic ranking, and can be removed by its
 owner. SQLite preserves the song across application restarts, while a
 persistent HTTP-only cookie reconnects the same browser to its records.
+
+## Phase 5 documents
+
+- [AI-assisted audio analysis](docs/phase-5-audio-analysis.md)
+- [Audio analysis sequence](diagrams/audio-analysis-sequence.mmd)
+
+Phase 5 accepts a permitted WAV, FLAC, OGG, MP3, or M4A file for temporary
+analysis. Signal measurements and a specialized catalog-trained classifier
+prefill an editable review form. The upload is deleted before review; only
+approved feature values and provenance are stored.
 
 ## Local setup
 
@@ -132,8 +143,8 @@ excluded from version control.
 1. Requirements and project definition
 2. Project setup and architecture — complete
 3. Song catalog and deterministic recommender — complete
-4. Private songs and manual feature entry — in review
-5. AI audio analysis
+4. Private songs and manual feature entry — complete
+5. AI audio analysis — in review
 6. Retrieval-augmented generation
 7. AI preference extraction
 8. Hybrid ranking and grounded explanations

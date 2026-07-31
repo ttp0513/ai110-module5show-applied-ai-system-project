@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     max_prompt_length: int = Field(default=1000, ge=1, le=5000)
     private_database_path: Path = Path("data/vybe.db")
     session_cookie_max_age_days: int = Field(default=3650, ge=1, le=3650)
+    max_audio_upload_bytes: int = Field(
+        default=25 * 1024 * 1024,
+        ge=1024,
+        le=100 * 1024 * 1024,
+    )
+    max_audio_duration_seconds: int = Field(default=900, ge=15, le=3600)
 
 
 @lru_cache

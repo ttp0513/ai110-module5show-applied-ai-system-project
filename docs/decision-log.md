@@ -25,6 +25,9 @@
 | D-015 | Renormalize weights using active preferences only | Accepted | Unselected features must not silently affect a listener's score |
 | D-016 | Store private songs only in volatile memory | Superseded | Replaced after the product owner required songs to survive restarts |
 | D-017 | Persist private songs and anonymous ownership in SQLite | Accepted | Songs should remain until users remove them without requiring a database server |
+| D-018 | Use a catalog-trained KNN model for genre and mood estimates | Accepted | Provides a reproducible specialized model constrained to the app vocabulary |
+| D-019 | Keep unapproved audio proposals in process memory | Accepted | No upload bytes persist and abandoned drafts disappear on restart |
+| D-020 | Separate measurements, algorithms, AI estimates, and user corrections in provenance | Accepted | Prevents approximate audio analysis from being presented as fact |
 
 ## Decisions still open
 

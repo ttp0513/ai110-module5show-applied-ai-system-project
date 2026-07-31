@@ -57,6 +57,7 @@ class SQLitePrivateSongRepository:
                 CREATE TABLE IF NOT EXISTS private_songs (
                     id TEXT PRIMARY KEY,
                     session_id TEXT NOT NULL,
+                    entry_source TEXT NOT NULL DEFAULT 'manual',
                     title TEXT NOT NULL,
                     artist TEXT NOT NULL,
                     genre TEXT NOT NULL,
@@ -93,6 +94,15 @@ class SQLitePrivateSongRepository:
                 );
                 """
             )
+            columns = {
+                row["name"]
+                for row in connection.execute("PRAGMA table_info(private_songs)")
+            }
+            if "entry_source" not in columns:
+                connection.execute(
+                    "ALTER TABLE private_songs "
+                    "ADD COLUMN entry_source TEXT NOT NULL DEFAULT 'manual'"
+                )
 
     def resolve_session(self, proposed_id: str | None) -> str:
         """Reuse a persisted valid session or issue and persist a new UUID."""
@@ -124,8 +134,10 @@ class SQLitePrivateSongRepository:
         self,
         session_id: str,
         submission: ManualSongCreate,
+        provenance: list[FeatureProvenance] | None = None,
+        source: SongSource = SongSource.MANUAL,
     ) -> PrivateSongRecord:
-        """Create a durable private song with user-entered provenance."""
+        """Create a durable private song with explicit feature provenance."""
 
         with self._lock, self._connect() as connection:
             session_exists = connection.execute(
@@ -149,11 +161,12 @@ class SQLitePrivateSongRepository:
             connection.execute(
                 """
                 INSERT INTO private_songs (
-                    id, session_id, title, artist, genre, mood, energy,
+                    id, session_id, entry_source, title, artist, genre, mood, energy,
                     tempo_bpm, valence, danceability, acousticness,
                     release_year, duration_seconds, instrumentalness, liveness
                 ) VALUES (
-                    :id, :session_id, :title, :artist, :genre, :mood, :energy,
+                    :id, :session_id, :entry_source, :title, :artist, :genre, :mood,
+                    :energy,
                     :tempo_bpm, :valence, :danceability, :acousticness,
                     :release_year, :duration_seconds, :instrumentalness, :liveness
                 )
@@ -161,40 +174,58 @@ class SQLitePrivateSongRepository:
                 {
                     "id": song_id,
                     "session_id": session_id,
+                    "entry_source": source.value,
                     **values,
                 },
             )
+            resolved_provenance = provenance or [
+                FeatureProvenance(
+                    feature_name=feature_name,
+                    source=FeatureSource.USER_ENTERED,
+                )
+                for feature_name in values
+            ]
+            if {item.feature_name for item in resolved_provenance} != set(values):
+                raise ValueError("Provenance must cover every song field exactly once.")
             connection.executemany(
                 """
                 INSERT INTO feature_provenance (
-                    song_id, feature_name, source, user_corrected
-                ) VALUES (?, ?, ?, 0)
+                    song_id, feature_name, source, confidence, model_version,
+                    user_corrected
+                ) VALUES (?, ?, ?, ?, ?, ?)
                 """,
                 [
-                    (song_id, feature_name, FeatureSource.USER_ENTERED.value)
-                    for feature_name in values
+                    (
+                        song_id,
+                        item.feature_name,
+                        item.source.value,
+                        item.confidence,
+                        item.model_version,
+                        int(item.user_corrected),
+                    )
+                    for item in resolved_provenance
                 ],
             )
-            return self._record_from_values(song_id, values)
+            return self._record_from_values(
+                song_id,
+                values,
+                resolved_provenance,
+                source,
+            )
 
     @staticmethod
     def _record_from_values(
         song_id: str,
         values: dict[str, object],
+        provenance: list[FeatureProvenance],
+        source: SongSource,
     ) -> PrivateSongRecord:
         song = Song(
             id=song_id,
             **values,
-            source=SongSource.MANUAL,
+            source=source,
             owner_scope=SongOwnerScope.PRIVATE_CATALOG,
         )
-        provenance = [
-            FeatureProvenance(
-                feature_name=feature_name,
-                source=FeatureSource.USER_ENTERED,
-            )
-            for feature_name in values
-        ]
         return PrivateSongRecord(song=song, provenance=provenance)
 
     def list_records(self, session_id: str) -> tuple[PrivateSongRecord, ...]:
@@ -203,7 +234,7 @@ class SQLitePrivateSongRepository:
         with self._lock, self._connect() as connection:
             rows = connection.execute(
                 """
-                SELECT id, title, artist, genre, mood, energy, tempo_bpm,
+                SELECT id, entry_source, title, artist, genre, mood, energy, tempo_bpm,
                        valence, danceability, acousticness, release_year,
                        duration_seconds, instrumentalness, liveness
                 FROM private_songs
@@ -217,7 +248,9 @@ class SQLitePrivateSongRepository:
             for row in rows:
                 row_values = dict(row)
                 values = {
-                    key: value for key, value in row_values.items() if key != "id"
+                    key: value
+                    for key, value in row_values.items()
+                    if key not in {"id", "entry_source"}
                 }
                 provenance_rows = connection.execute(
                     """
@@ -232,7 +265,7 @@ class SQLitePrivateSongRepository:
                 song = Song(
                     id=row["id"],
                     **values,
-                    source=SongSource.MANUAL,
+                    source=SongSource(row["entry_source"]),
                     owner_scope=SongOwnerScope.PRIVATE_CATALOG,
                 )
                 provenance = [

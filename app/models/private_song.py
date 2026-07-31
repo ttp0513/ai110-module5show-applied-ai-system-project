@@ -13,6 +13,7 @@ class FeatureSource(StrEnum):
 
     MEASURED = "measured"
     AI_ESTIMATED = "ai_estimated"
+    ALGORITHM_ESTIMATED = "algorithm_estimated"
     EMBEDDED_METADATA = "embedded_metadata"
     USER_ENTERED = "user_entered"
 

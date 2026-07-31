@@ -2,25 +2,36 @@ sequenceDiagram
     actor Listener
     participant UI
     participant API
-    participant Upload as Upload Validator
-    participant Analyzer as Music Analyzer
-    participant Review as Feature Validator
-    participant Catalog as Private Catalog
-    participant Index as Retrieval Index
+    participant Guard as Upload Guard
+    participant Signal as Signal Analyzer
+    participant Model as Catalog KNN Model
+    participant Draft as Memory Drafts
+    participant DB as SQLite Private Catalog
 
-    Listener->>UI: Select owned or permitted audio
-    UI->>API: Upload for temporary analysis
-    API->>Upload: Validate signature, size, duration
-    alt Invalid file
-        Upload-->>UI: Safe validation error
-    else Valid file
-        Upload->>Analyzer: Normalized temporary audio
-        Analyzer-->>Review: Measurements, estimates, provenance
-        Review-->>UI: Reviewable feature proposal
-        Listener->>UI: Correct and approve values
-        UI->>API: Confirm canonical song
-        API->>Catalog: Save private song and provenance
-        Catalog->>Index: Index approved song document
-        Index-->>UI: Song available for recommendations
-        API->>Upload: Delete temporary audio
+    Listener->>UI: Select permitted audio and confirm rights
+    UI->>API: Multipart audio upload
+    API->>Guard: Stream with size and signature limits
+    alt Invalid, corrupt, silent, too short, or too long
+        Guard-->>API: Safe validation error
+        API->>Guard: Delete temporary file
+        API-->>UI: Actionable error
+    else Valid audio
+        Guard->>Signal: Randomized temporary path
+        Signal->>Signal: Measure duration and tempo
+        Signal->>Signal: Estimate numeric sound features
+        Signal->>Model: Classify supported genre and mood
+        Model-->>Signal: Labels and confidence
+        Signal-->>API: Values, provenance, and warnings
+        API->>Guard: Delete temporary file
+        API->>Draft: Store audio-free proposal by session
+        API-->>UI: Editable review proposal
+        alt Listener discards
+            UI->>API: Cancel draft
+            API->>Draft: Delete proposal
+        else Listener corrects and approves
+            UI->>API: Submit reviewed values
+            API->>DB: Save values and correction provenance
+            API->>Draft: Delete proposal
+            DB-->>UI: Song available for recommendations
+        end
     end
