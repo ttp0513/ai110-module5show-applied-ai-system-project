@@ -1,1 +1,15 @@
-"""Language-model adapters and prompt contracts (implemented in Phase 7)."""
+"""Language-model adapters and validated preference extraction."""
+
+from app.ai.providers import (
+    DemoPreferenceProvider,
+    OpenAIPreferenceProvider,
+    PreferenceProviderError,
+)
+from app.ai.service import PreferenceInterpretationService
+
+__all__ = [
+    "DemoPreferenceProvider",
+    "OpenAIPreferenceProvider",
+    "PreferenceInterpretationService",
+    "PreferenceProviderError",
+]

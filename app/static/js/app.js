@@ -3,6 +3,7 @@ const state = {
   selectedGenres: new Set(),
   selectedMoods: new Set(),
   analysisId: null,
+  interpretedPreferences: null,
 };
 
 const elements = {
@@ -44,6 +45,13 @@ const elements = {
   retrievalResults: document.querySelector("#retrieval-results"),
   retrievalCount: document.querySelector("#retrieval-count"),
   retrievalList: document.querySelector("#retrieval-list"),
+  interpretationReview: document.querySelector("#interpretation-review"),
+  interpretationProvider: document.querySelector("#interpretation-provider"),
+  interpretationSummary: document.querySelector("#interpretation-summary"),
+  interpretationFields: document.querySelector("#interpretation-fields"),
+  interpretationWarnings: document.querySelector("#interpretation-warnings"),
+  applyInterpretation: document.querySelector("#apply-interpretation"),
+  discardInterpretation: document.querySelector("#discard-interpretation"),
 };
 
 function titleCase(value) {
@@ -277,6 +285,104 @@ function renderRetrievalResults(payload) {
   );
 }
 
+function preferenceLabels(preferences) {
+  if (!preferences) return [];
+  const labels = [
+    ...preferences.preferred_genres.map((value) => `Genre · ${titleCase(value)}`),
+    ...preferences.preferred_moods.map((value) => `Mood · ${titleCase(value)}`),
+    ...preferences.excluded_genres.map((value) => `Avoid · ${titleCase(value)}`),
+    ...preferences.excluded_moods.map((value) => `Avoid · ${titleCase(value)}`),
+  ];
+  const numericLabels = {
+    target_energy: "Energy",
+    target_valence: "Positivity",
+    target_danceability: "Danceability",
+    target_acousticness: "Acousticness",
+    target_instrumentalness: "Instrumentalness",
+    target_liveness: "Liveness",
+  };
+  Object.entries(numericLabels).forEach(([key, label]) => {
+    if (preferences[key] !== null) {
+      labels.push(`${label} · ${Math.round(preferences[key] * 100)}%`);
+    }
+  });
+  if (preferences.target_tempo_bpm !== null) {
+    labels.push(`Tempo · ${Math.round(preferences.target_tempo_bpm)} BPM`);
+  }
+  return labels;
+}
+
+function renderInterpretation(payload) {
+  state.interpretedPreferences = payload.preferences;
+  elements.interpretationReview.hidden = false;
+  elements.interpretationProvider.textContent =
+    `${payload.provider} · ${payload.model}` +
+    (payload.used_fallback ? " · fallback" : "");
+  elements.interpretationSummary.textContent = payload.interpretation_summary;
+  elements.interpretationFields.replaceChildren(
+    ...preferenceLabels(payload.preferences).map((text) => {
+      const chip = document.createElement("span");
+      chip.textContent = text;
+      return chip;
+    }),
+  );
+  const warnings = [...payload.ambiguities];
+  if (payload.fallback_reason) warnings.push(payload.fallback_reason);
+  elements.interpretationWarnings.replaceChildren(
+    ...warnings.map((warning) => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = `! ${warning}`;
+      return paragraph;
+    }),
+  );
+  elements.applyInterpretation.disabled = !payload.preferences;
+}
+
+function applyInterpretationToBuilder() {
+  const preferences = state.interpretedPreferences;
+  if (!preferences) return;
+
+  state.selectedGenres = new Set(preferences.preferred_genres);
+  state.selectedMoods = new Set(preferences.preferred_moods);
+  document.querySelectorAll('#genre-options input[type="checkbox"]').forEach(
+    (input) => {
+      input.checked = state.selectedGenres.has(input.value);
+    },
+  );
+  document.querySelectorAll('#mood-options input[type="checkbox"]').forEach(
+    (input) => {
+      input.checked = state.selectedMoods.has(input.value);
+    },
+  );
+  elements.excludedGenre.value = preferences.excluded_genres[0] || "";
+  elements.excludedMood.value = preferences.excluded_moods[0] || "";
+
+  document.querySelectorAll(".slider-control").forEach((control) => {
+    const key = control.dataset.preference;
+    const value = preferences[key];
+    const slider = control.querySelector('input[type="range"]');
+    const toggle = control.querySelector(".feature-toggle");
+    if (value === null || value === undefined) {
+      toggle.checked = false;
+      return;
+    }
+    slider.value = key === "target_tempo_bpm" ? value : Math.round(value * 100);
+    toggle.checked = true;
+    slider.dispatchEvent(new Event("input"));
+  });
+  updateSummary();
+  document.querySelector("#preference-builder").scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}
+
+elements.applyInterpretation.addEventListener("click", applyInterpretationToBuilder);
+elements.discardInterpretation.addEventListener("click", () => {
+  state.interpretedPreferences = null;
+  elements.interpretationReview.hidden = true;
+});
+
 document.querySelectorAll(".example-prompts button").forEach((button) => {
   button.addEventListener("click", () => {
     elements.retrievalQuery.value = button.textContent;
@@ -292,25 +398,39 @@ elements.retrievalForm.addEventListener("submit", async (event) => {
     "Searching approved songs…";
 
   try {
-    const response = await fetch("/api/retrieval/search?limit=5", {
+    const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: elements.retrievalQuery.value }),
-    });
-    if (!response.ok) {
-      const error = await response.json();
+    };
+    const [interpretationResponse, retrievalResponse] = await Promise.all([
+      fetch("/api/preferences/interpret", {
+        ...requestOptions,
+        body: JSON.stringify({ prompt: elements.retrievalQuery.value }),
+      }),
+      fetch("/api/retrieval/search?limit=5", {
+        ...requestOptions,
+        body: JSON.stringify({ query: elements.retrievalQuery.value }),
+      }),
+    ]);
+    if (!interpretationResponse.ok || !retrievalResponse.ok) {
+      const error = await (
+        interpretationResponse.ok ? retrievalResponse : interpretationResponse
+      ).json();
       throw new Error(
-        error.detail?.[0]?.msg || error.detail || "Catalog retrieval failed.",
+        error.detail?.[0]?.msg ||
+          error.detail ||
+          "Interpretation and retrieval failed.",
       );
     }
-    renderRetrievalResults(await response.json());
+    renderInterpretation(await interpretationResponse.json());
+    renderRetrievalResults(await retrievalResponse.json());
   } catch (error) {
     elements.retrievalMessage.textContent = error.message;
     elements.retrievalMessage.hidden = false;
   } finally {
     elements.retrievalButton.disabled = false;
     elements.retrievalButton.querySelector("span").textContent =
-      "Find catalog matches";
+      "Interpret & find matches";
   }
 });
 

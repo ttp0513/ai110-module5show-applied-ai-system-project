@@ -6,6 +6,11 @@ from typing import Annotated
 
 from fastapi import Cookie, Depends, Response
 
+from app.ai import (
+    DemoPreferenceProvider,
+    OpenAIPreferenceProvider,
+    PreferenceInterpretationService,
+)
 from app.audio import AnalysisDraftRepository, AudioAnalysisService, AudioAnalyzer
 from app.audio.classifier import CatalogCategoryClassifier
 from app.catalog import CatalogRepository, SQLitePrivateSongRepository
@@ -35,6 +40,30 @@ def get_retrieval_service() -> CatalogRetrievalService:
     """Return the stateless catalog-grounded retrieval service."""
 
     return CatalogRetrievalService()
+
+
+@lru_cache
+def get_preference_interpreter() -> PreferenceInterpretationService:
+    """Select configured structured extraction with a deterministic fallback."""
+
+    settings = get_settings()
+    fallback = DemoPreferenceProvider()
+    if settings.demo_mode or settings.ai_provider == "demo":
+        return PreferenceInterpretationService(fallback, fallback)
+    if not settings.ai_api_key:
+        return PreferenceInterpretationService(
+            fallback,
+            fallback,
+            initial_fallback_reason=(
+                "OpenAI is configured without an API key; local rules used."
+            ),
+        )
+    primary = OpenAIPreferenceProvider(
+        api_key=settings.ai_api_key,
+        model=settings.ai_model,
+        timeout_seconds=settings.request_timeout_seconds,
+    )
+    return PreferenceInterpretationService(primary, fallback)
 
 
 @lru_cache

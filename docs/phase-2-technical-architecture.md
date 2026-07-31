@@ -24,7 +24,7 @@ preserving boundaries that can be extracted later if scale requires it.
 | `app.models` | Canonical domain and transport schemas | 3 and 4 |
 | `app.recommendation` | Deterministic scoring and hybrid ranking | 3 and 8 |
 | `app.retrieval` | Document construction and grounded catalog search | Implemented in 6 |
-| `app.ai` | Model adapters, prompts, extraction, explanation | 7 and 8 |
+| `app.ai` | Model adapters, prompts, extraction, explanation | Extraction implemented in 7 |
 | `app.services` | End-to-end use-case orchestration | 8 and 9 |
 | `app.validation` | Grounding, constraints, and output guardrails | 8 and 11 |
 | `app.static` | Browser CSS, JavaScript, and approved visual assets | 10 |
@@ -107,7 +107,7 @@ Planned routes are documented but not implemented until their owning phases:
 |---|---|---:|
 | `GET` | `/api/catalog/options` | Implemented in 3 |
 | `POST` | `/api/recommendations/deterministic` | Implemented in 3 |
-| `POST` | `/api/preferences/interpret` | 7 and 9 |
+| `POST` | `/api/preferences/interpret` | Implemented in 7 |
 | `POST` | `/api/recommendations` | 8 and 9 |
 | `POST` | `/api/recommendations/refine` | 8 and 9 |
 | `GET` | `/api/songs/private` | Implemented in 4 |

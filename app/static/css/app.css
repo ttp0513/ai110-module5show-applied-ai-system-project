@@ -400,6 +400,66 @@ h1 em {
   margin-top: 48px;
 }
 
+.interpretation-review {
+  background: linear-gradient(
+    135deg,
+    rgba(215, 255, 100, 0.08),
+    rgba(145, 108, 255, 0.08)
+  );
+  border: 1px solid rgba(215, 255, 100, 0.35);
+  border-radius: var(--radius);
+  margin-top: 30px;
+  padding: 26px;
+}
+
+.interpretation-heading,
+.interpretation-actions {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.interpretation-heading h3 {
+  font-size: 28px;
+  margin: 6px 0 0;
+}
+
+.interpretation-heading > span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 7px 10px;
+  text-transform: uppercase;
+}
+
+.interpretation-review > p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.interpretation-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.interpretation-fields span {
+  background: var(--lime);
+  border-radius: 999px;
+  color: #111;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+}
+
+.interpretation-actions {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 20px;
+}
+
 .retrieval-results-heading {
   align-items: end;
   display: flex;
@@ -1354,6 +1414,13 @@ footer {
 
   .retrieval-card {
     grid-template-columns: 34px minmax(0, 1fr);
+  }
+
+  .interpretation-heading,
+  .interpretation-actions {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
   }
 
   .retrieval-score {

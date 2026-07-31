@@ -86,7 +86,7 @@
                 required
               ></textarea>
               <button id="retrieval-button" class="submit-button" type="submit">
-                <span>Find catalog matches</span>
+                <span>Interpret &amp; find matches</span>
                 <span aria-hidden="true">↗</span>
               </button>
             </div>
@@ -102,6 +102,27 @@
             <p id="retrieval-message" class="form-error" role="status" hidden></p>
           </form>
         </div>
+        <section id="interpretation-review" class="interpretation-review" hidden>
+          <div class="interpretation-heading">
+            <div>
+              <p class="micro-label">REVIEW BEFORE APPLYING</p>
+              <h3>VYBE heard this</h3>
+            </div>
+            <span id="interpretation-provider"></span>
+          </div>
+          <p id="interpretation-summary"></p>
+          <div id="interpretation-fields" class="interpretation-fields"></div>
+          <div id="interpretation-warnings" class="analysis-warnings"></div>
+          <div class="interpretation-actions">
+            <button id="discard-interpretation" class="delete-song-button" type="button">
+              Discard
+            </button>
+            <button id="apply-interpretation" class="submit-button compact-button" type="button">
+              <span>Apply to vibe builder</span>
+              <span aria-hidden="true">↓</span>
+            </button>
+          </div>
+        </section>
         <div id="retrieval-results" class="retrieval-results" hidden>
           <div class="retrieval-results-heading">
             <div>
@@ -225,6 +246,19 @@
                   <output for="acousticness">45%</output>
                   <input id="acousticness" type="range" min="0" max="100" value="45">
                   <div class="range-labels"><span>Electronic</span><span>Acoustic</span></div>
+                </div>
+
+                <div class="slider-control" data-preference="target_liveness">
+                  <div class="slider-heading">
+                    <label for="liveness">Liveness</label>
+                    <label class="use-toggle">
+                      <input type="checkbox" class="feature-toggle">
+                      <span>Use</span>
+                    </label>
+                  </div>
+                  <output for="liveness">20%</output>
+                  <input id="liveness" type="range" min="0" max="100" value="20">
+                  <div class="range-labels"><span>Studio</span><span>Live feel</span></div>
                 </div>
 
                 <div class="slider-control" data-preference="target_tempo_bpm">

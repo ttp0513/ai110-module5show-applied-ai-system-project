@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     environment: Literal["development", "test", "production"] = "development"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     demo_mode: bool = True
-    ai_provider: str = "demo"
-    ai_model: str = ""
+    ai_provider: Literal["demo", "openai"] = "demo"
+    ai_model: str = "gpt-5.6"
     ai_api_key: str = ""
     retrieval_candidate_count: int = Field(default=15, ge=5, le=100)
     recommendation_count: int = Field(default=5, ge=1, le=20)

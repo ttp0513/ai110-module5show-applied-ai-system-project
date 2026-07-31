@@ -27,7 +27,7 @@ def test_health_check() -> None:
         "application": "VYBE",
         "environment": "development",
         "demo_mode": True,
-        "phase": 6,
+        "phase": 7,
     }
 
 
@@ -35,4 +35,4 @@ def test_api_describes_current_phase() -> None:
     response = asyncio.run(get("/api"))
 
     assert response.status_code == 200
-    assert response.json()["status"] == "Phase 6 grounded catalog retrieval"
+    assert response.json()["status"] == "Phase 7 AI preference interpretation"

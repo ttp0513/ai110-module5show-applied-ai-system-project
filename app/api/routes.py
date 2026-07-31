@@ -15,9 +15,11 @@ from fastapi import (
 )
 from pydantic import BaseModel
 
+from app.ai import PreferenceInterpretationService
 from app.api.dependencies import (
     get_audio_analysis_service,
     get_catalog,
+    get_preference_interpreter,
     get_private_catalog,
     get_recommender,
     get_retrieval_service,
@@ -39,6 +41,8 @@ from app.models import (
     Genre,
     ManualSongCreate,
     Mood,
+    PreferenceInterpretationRequest,
+    PreferenceInterpretationResponse,
     PrivateSongRecord,
     RecommendationResponse,
     RetrievalQuery,
@@ -62,6 +66,10 @@ RecommenderDependency = Annotated[
 RetrievalDependency = Annotated[
     CatalogRetrievalService,
     Depends(get_retrieval_service),
+]
+PreferenceInterpreterDependency = Annotated[
+    PreferenceInterpretationService,
+    Depends(get_preference_interpreter),
 ]
 SessionDependency = Annotated[str, Depends(get_session_id)]
 AudioAnalysisDependency = Annotated[
@@ -104,7 +112,7 @@ def application_summary() -> dict[str, str]:
 
     return {
         "name": get_settings().app_name,
-        "status": "Phase 6 grounded catalog retrieval",
+        "status": "Phase 7 AI preference interpretation",
         "documentation": "/docs",
     }
 
@@ -119,7 +127,7 @@ def health_check() -> HealthResponse:
         application=settings.app_name,
         environment=settings.environment,
         demo_mode=settings.demo_mode,
-        phase=6,
+        phase=7,
     )
 
 
@@ -207,6 +215,29 @@ def retrieve_catalog_candidates(
         )
     songs = catalog.list_all() + private_catalog.list_songs(session_id)
     return retrieval.search(request.query, songs, limit)
+
+
+@router.post(
+    "/api/preferences/interpret",
+    response_model=PreferenceInterpretationResponse,
+    tags=["AI preferences"],
+)
+async def interpret_preferences(
+    request: PreferenceInterpretationRequest,
+    interpreter: PreferenceInterpreterDependency,
+) -> PreferenceInterpretationResponse:
+    """Extract reviewable preferences without logging or storing raw text."""
+
+    settings = get_settings()
+    if len(request.prompt) > settings.max_prompt_length:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=(
+                "The prompt exceeds the configured "
+                f"{settings.max_prompt_length}-character limit."
+            ),
+        )
+    return await interpreter.interpret(request.prompt)
 
 
 @router.get(

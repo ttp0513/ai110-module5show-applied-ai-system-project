@@ -31,6 +31,9 @@
 | D-021 | Start retrieval with local TF-IDF and controlled semantic cues | Accepted | Keeps Phase 6 reproducible and credential-free while preserving a future embedding adapter boundary |
 | D-022 | Rebuild the caller-visible retrieval index per request for the MVP | Accepted | Immediately reflects private-song ownership and deletion without stale index state |
 | D-023 | Generate Phase 6 explanations only from structured catalog evidence | Accepted | Unknown requests must return no match instead of hallucinated songs or attributes |
+| D-024 | Use Responses API Structured Outputs for configured preference extraction | Accepted | Pydantic-constrained output maps safely into the existing recommendation contract |
+| D-025 | Require visible review before interpreted preferences affect ranking | Accepted | Keeps AI advisory and lets listeners correct meaning before use |
+| D-026 | Preserve a deterministic local preference interpreter | Accepted | The core journey remains reproducible without a credential or provider availability |
 
 ## Decisions still open
 

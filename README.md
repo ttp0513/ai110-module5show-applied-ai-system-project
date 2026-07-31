@@ -15,7 +15,8 @@ or correct those values before the track enters their private catalog.
 - **Phase 3 prototype complete:** responsive deterministic interface
 - **Phase 4 complete:** anonymous private songs and manual entry
 - **Phase 5 complete:** temporary audio analysis and mandatory review
-- **Phase 6 in review:** grounded natural-language catalog retrieval
+- **Phase 6 complete:** grounded natural-language catalog retrieval
+- **Phase 7 in review:** AI preference interpretation and review
 
 Semantic retrieval, AI preference extraction, and grounded explanations are
 intentionally reserved for later phases.
@@ -95,6 +96,17 @@ to return relevant approved records. Every explanation is generated from
 structured catalog evidence, private songs remain session-isolated, and
 unknown requests produce no invented candidates.
 
+## Phase 7 documents
+
+- [AI preference interpretation](docs/phase-7-ai-preference-interpretation.md)
+- [Preference interpretation sequence](diagrams/preference-interpretation-sequence.mmd)
+
+Phase 7 turns natural-language vibe descriptions into schema-validated
+recommendation preferences. Users review the provider, extracted fields,
+fallback status, and ambiguities before applying values to the visible builder.
+The default deterministic interpreter needs no credentials; an optional OpenAI
+Responses API adapter uses Pydantic Structured Outputs.
+
 ## Local setup
 
 Install Python 3.12, 3.13, or 3.14 before running these commands. Phase 2 was
@@ -157,8 +169,8 @@ excluded from version control.
 3. Song catalog and deterministic recommender — complete
 4. Private songs and manual feature entry — complete
 5. AI audio analysis — complete
-6. Retrieval and grounding foundation — in review
-7. AI preference extraction
+6. Retrieval and grounding foundation — complete
+7. AI preference extraction — in review
 8. Hybrid ranking and grounded explanations
 9. Backend API
 10. Responsive user interface

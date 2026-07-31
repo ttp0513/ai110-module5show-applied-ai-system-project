@@ -5,6 +5,11 @@ from app.models.audio_analysis import (
     AudioAnalysisProposal,
     AudioFileInfo,
 )
+from app.models.preference_interpretation import (
+    ExtractedPreferences,
+    PreferenceInterpretationRequest,
+    PreferenceInterpretationResponse,
+)
 from app.models.preferences import UserPreferences
 from app.models.private_song import (
     FeatureProvenance,
@@ -36,6 +41,9 @@ __all__ = [
     "Mood",
     "ManualSongCreate",
     "PrivateSongRecord",
+    "PreferenceInterpretationRequest",
+    "PreferenceInterpretationResponse",
+    "ExtractedPreferences",
     "Recommendation",
     "RecommendationResponse",
     "RetrievalCandidate",
