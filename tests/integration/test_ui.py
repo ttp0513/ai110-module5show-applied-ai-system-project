@@ -47,3 +47,4 @@ def test_static_assets_are_available() -> None:
     assert "/api/songs/analyze" in script.text
     assert "/api/retrieval/search" in script.text
     assert "/api/preferences/interpret" in script.text
+    assert '"/api/recommendations?limit=5"' in script.text

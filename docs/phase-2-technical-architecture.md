@@ -25,7 +25,7 @@ preserving boundaries that can be extracted later if scale requires it.
 | `app.recommendation` | Deterministic scoring and hybrid ranking | 3 and 8 |
 | `app.retrieval` | Document construction and grounded catalog search | Implemented in 6 |
 | `app.ai` | Model adapters, prompts, extraction, explanation | Extraction implemented in 7 |
-| `app.services` | End-to-end use-case orchestration | 8 and 9 |
+| `app.services` | End-to-end use-case orchestration | Hybrid flow implemented in 8 |
 | `app.validation` | Grounding, constraints, and output guardrails | 8 and 11 |
 | `app.static` | Browser CSS, JavaScript, and approved visual assets | 10 |
 | `app.templates` | Server-delivered application shell | 10 |
@@ -108,7 +108,7 @@ Planned routes are documented but not implemented until their owning phases:
 | `GET` | `/api/catalog/options` | Implemented in 3 |
 | `POST` | `/api/recommendations/deterministic` | Implemented in 3 |
 | `POST` | `/api/preferences/interpret` | Implemented in 7 |
-| `POST` | `/api/recommendations` | 8 and 9 |
+| `POST` | `/api/recommendations` | Implemented in 8 |
 | `POST` | `/api/recommendations/refine` | 8 and 9 |
 | `GET` | `/api/songs/private` | Implemented in 4 |
 | `POST` | `/api/songs/private` | Implemented in 4 |

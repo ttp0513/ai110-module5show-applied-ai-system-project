@@ -17,6 +17,7 @@ from app.catalog import CatalogRepository, SQLitePrivateSongRepository
 from app.config import get_settings
 from app.recommendation import DeterministicRecommender
 from app.retrieval import CatalogRetrievalService
+from app.services import HybridRecommendationService
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -64,6 +65,13 @@ def get_preference_interpreter() -> PreferenceInterpretationService:
         timeout_seconds=settings.request_timeout_seconds,
     )
     return PreferenceInterpretationService(primary, fallback)
+
+
+@lru_cache
+def get_hybrid_recommender() -> HybridRecommendationService:
+    """Return the Phase 8 retrieval and scoring orchestrator."""
+
+    return HybridRecommendationService(get_retrieval_service())
 
 
 @lru_cache

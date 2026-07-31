@@ -19,6 +19,7 @@ from app.ai import PreferenceInterpretationService
 from app.api.dependencies import (
     get_audio_analysis_service,
     get_catalog,
+    get_hybrid_recommender,
     get_preference_interpreter,
     get_private_catalog,
     get_recommender,
@@ -39,6 +40,8 @@ from app.catalog import (
 from app.config import get_settings
 from app.models import (
     Genre,
+    HybridRecommendationRequest,
+    HybridRecommendationResponse,
     ManualSongCreate,
     Mood,
     PreferenceInterpretationRequest,
@@ -52,6 +55,7 @@ from app.models import (
 from app.models.audio_analysis import AudioAnalysisApproval, AudioAnalysisProposal
 from app.recommendation import DeterministicRecommender
 from app.retrieval import CatalogRetrievalService
+from app.services import HybridRecommendationService
 
 router = APIRouter()
 CatalogDependency = Annotated[CatalogRepository, Depends(get_catalog)]
@@ -70,6 +74,10 @@ RetrievalDependency = Annotated[
 PreferenceInterpreterDependency = Annotated[
     PreferenceInterpretationService,
     Depends(get_preference_interpreter),
+]
+HybridRecommenderDependency = Annotated[
+    HybridRecommendationService,
+    Depends(get_hybrid_recommender),
 ]
 SessionDependency = Annotated[str, Depends(get_session_id)]
 AudioAnalysisDependency = Annotated[
@@ -112,7 +120,7 @@ def application_summary() -> dict[str, str]:
 
     return {
         "name": get_settings().app_name,
-        "status": "Phase 7 AI preference interpretation",
+        "status": "Phase 8 hybrid grounded recommendations",
         "documentation": "/docs",
     }
 
@@ -127,7 +135,7 @@ def health_check() -> HealthResponse:
         application=settings.app_name,
         environment=settings.environment,
         demo_mode=settings.demo_mode,
-        phase=7,
+        phase=8,
     )
 
 
@@ -238,6 +246,40 @@ async def interpret_preferences(
             ),
         )
     return await interpreter.interpret(request.prompt)
+
+
+@router.post(
+    "/api/recommendations",
+    response_model=HybridRecommendationResponse,
+    tags=["recommendations"],
+)
+def hybrid_recommendations(
+    request: HybridRecommendationRequest,
+    catalog: CatalogDependency,
+    private_catalog: PrivateCatalogDependency,
+    hybrid: HybridRecommenderDependency,
+    session_id: SessionDependency,
+    limit: Annotated[int, Query(ge=1, le=20)] = 5,
+) -> HybridRecommendationResponse:
+    """Combine retrieval relevance with reviewed deterministic preferences."""
+
+    settings = get_settings()
+    if len(request.query) > settings.max_prompt_length:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=(
+                "The query exceeds the configured "
+                f"{settings.max_prompt_length}-character limit."
+            ),
+        )
+    songs = catalog.list_all() + private_catalog.list_songs(session_id)
+    return hybrid.recommend(
+        query=request.query,
+        preferences=request.preferences,
+        songs=songs,
+        candidate_limit=settings.retrieval_candidate_count,
+        result_limit=limit,
+    )
 
 
 @router.get(

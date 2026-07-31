@@ -16,7 +16,8 @@ or correct those values before the track enters their private catalog.
 - **Phase 4 complete:** anonymous private songs and manual entry
 - **Phase 5 complete:** temporary audio analysis and mandatory review
 - **Phase 6 complete:** grounded natural-language catalog retrieval
-- **Phase 7 in review:** AI preference interpretation and review
+- **Phase 7 complete:** AI preference interpretation and review
+- **Phase 8 in review:** hybrid ranking and grounded explanations
 
 Semantic retrieval, AI preference extraction, and grounded explanations are
 intentionally reserved for later phases.
@@ -107,6 +108,16 @@ fallback status, and ambiguities before applying values to the visible builder.
 The default deterministic interpreter needs no credentials; an optional OpenAI
 Responses API adapter uses Pydantic Structured Outputs.
 
+## Phase 8 documents
+
+- [Hybrid ranking and grounded explanations](docs/phase-8-hybrid-ranking.md)
+- [Hybrid recommendation sequence](diagrams/hybrid-recommendation-sequence.mmd)
+
+Phase 8 combines normalized text relevance at 35% with reviewed deterministic
+feature similarity at 65%. Every result exposes both components and
+per-feature evidence. Unknown queries fall back to feature-only ranking, and
+private songs remain isolated to their owning anonymous session.
+
 ## Local setup
 
 Install Python 3.12, 3.13, or 3.14 before running these commands. Phase 2 was
@@ -170,8 +181,8 @@ excluded from version control.
 4. Private songs and manual feature entry — complete
 5. AI audio analysis — complete
 6. Retrieval and grounding foundation — complete
-7. AI preference extraction — in review
-8. Hybrid ranking and grounded explanations
+7. AI preference extraction — complete
+8. Hybrid ranking and grounded explanations — in review
 9. Backend API
 10. Responsive user interface
 11. Logging, security, and guardrails

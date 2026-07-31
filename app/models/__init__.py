@@ -5,6 +5,12 @@ from app.models.audio_analysis import (
     AudioAnalysisProposal,
     AudioFileInfo,
 )
+from app.models.hybrid import (
+    HybridRecommendation,
+    HybridRecommendationRequest,
+    HybridRecommendationResponse,
+    HybridScoreEvidence,
+)
 from app.models.preference_interpretation import (
     ExtractedPreferences,
     PreferenceInterpretationRequest,
@@ -38,6 +44,10 @@ __all__ = [
     "FeatureProvenance",
     "FeatureSource",
     "Genre",
+    "HybridRecommendation",
+    "HybridRecommendationRequest",
+    "HybridRecommendationResponse",
+    "HybridScoreEvidence",
     "Mood",
     "ManualSongCreate",
     "PrivateSongRecord",

@@ -968,6 +968,14 @@ select {
   padding-top: 14px;
 }
 
+.grounded-result-explanation {
+  border-left: 2px solid var(--lime);
+  color: var(--ink);
+  line-height: 1.6;
+  margin: 4px 0 12px;
+  padding: 4px 0 4px 12px;
+}
+
 .reason-row {
   align-items: center;
   background: var(--surface);

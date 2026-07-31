@@ -1,0 +1,28 @@
+sequenceDiagram
+    actor Listener
+    participant UI
+    participant API
+    participant Catalog
+    participant Retrieval
+    participant Scorer as Feature Scorer
+    participant Hybrid as Hybrid Ranker
+    participant Ground as Evidence Renderer
+
+    Listener->>UI: Apply and correct interpreted preferences
+    UI->>API: Query plus reviewed preferences
+    API->>Catalog: Load public and caller-private songs
+    API->>API: Apply exclusions
+    API->>Retrieval: Retrieve up to configured candidate count
+    alt Positive retrieval matches
+        Retrieval-->>Hybrid: Candidates and text relevance
+        Hybrid->>Hybrid: Normalize retrieval scores
+        Hybrid->>Scorer: Score reviewed feature similarity
+        Scorer-->>Hybrid: Feature scores and reasons
+        Hybrid->>Hybrid: 35% retrieval + 65% features
+    else No retrieval match
+        Retrieval-->>Hybrid: Empty candidate set
+        Hybrid->>Scorer: Score full eligible catalog
+        Scorer-->>Hybrid: Feature-only scores and reasons
+    end
+    Hybrid->>Ground: Ranked songs and validated evidence
+    Ground-->>UI: Scores, components, reasons, and grounded prose

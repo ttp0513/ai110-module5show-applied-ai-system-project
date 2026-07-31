@@ -4,6 +4,7 @@ const state = {
   selectedMoods: new Set(),
   analysisId: null,
   interpretedPreferences: null,
+  hybridQuery: null,
 };
 
 const elements = {
@@ -221,6 +222,30 @@ function resultCard(recommendation) {
   details.append(detailsSummary);
   const reasons = document.createElement("div");
   reasons.className = "reason-list";
+  if (recommendation.grounded_explanation) {
+    const explanation = document.createElement("p");
+    explanation.className = "grounded-result-explanation";
+    explanation.textContent = recommendation.grounded_explanation;
+    reasons.append(explanation);
+  }
+  if (recommendation.score_evidence) {
+    reasons.append(
+      reasonRow({
+        feature: "feature score",
+        summary: "Reviewed preference similarity",
+        contribution:
+          recommendation.score_evidence.feature_score *
+          recommendation.score_evidence.feature_weight,
+      }),
+      reasonRow({
+        feature: "retrieval score",
+        summary: "Normalized text relevance",
+        contribution:
+          recommendation.score_evidence.normalized_retrieval_score *
+          recommendation.score_evidence.retrieval_weight,
+      }),
+    );
+  }
   reasons.append(...recommendation.reasons.map(reasonRow));
   details.append(reasons);
   article.append(details);
@@ -231,9 +256,12 @@ function renderResults(payload) {
   elements.resultsList.replaceChildren(
     ...payload.recommendations.map(resultCard),
   );
+  const modeSummary = payload.mode === "hybrid"
+    ? `${payload.retrieved_candidate_count} retrieved · ` +
+      `${payload.used_retrieval_fallback ? "feature fallback" : "hybrid ranking"}`
+    : `${payload.considered_song_count} songs considered`;
   elements.resultsSummary.textContent =
-    `${payload.considered_song_count} songs considered · ` +
-    `${payload.filtered_song_count} filtered out`;
+    `${modeSummary} · ${payload.filtered_song_count} filtered out`;
   elements.resultsSection.hidden = false;
   elements.resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -341,6 +369,7 @@ function renderInterpretation(payload) {
 function applyInterpretationToBuilder() {
   const preferences = state.interpretedPreferences;
   if (!preferences) return;
+  state.hybridQuery = elements.retrievalQuery.value;
 
   state.selectedGenres = new Set(preferences.preferred_genres);
   state.selectedMoods = new Set(preferences.preferred_moods);
@@ -380,6 +409,7 @@ function applyInterpretationToBuilder() {
 elements.applyInterpretation.addEventListener("click", applyInterpretationToBuilder);
 elements.discardInterpretation.addEventListener("click", () => {
   state.interpretedPreferences = null;
+  state.hybridQuery = null;
   elements.interpretationReview.hidden = true;
 });
 
@@ -660,10 +690,16 @@ elements.form.addEventListener("submit", async (event) => {
   elements.submit.querySelector("span").textContent = "Ranking the catalog…";
 
   try {
-    const response = await fetch("/api/recommendations/deterministic?limit=5", {
+    const endpoint = state.hybridQuery
+      ? "/api/recommendations?limit=5"
+      : "/api/recommendations/deterministic?limit=5";
+    const requestBody = state.hybridQuery
+      ? { query: state.hybridQuery, preferences: payload }
+      : payload;
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(requestBody),
     });
     if (!response.ok) {
       const error = await response.json();
