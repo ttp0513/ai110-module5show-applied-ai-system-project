@@ -8,7 +8,7 @@ from fastapi import Cookie, Depends, Response
 
 from app.ai import (
     DemoPreferenceProvider,
-    OpenAIPreferenceProvider,
+    GeminiPreferenceProvider,
     PreferenceInterpretationService,
 )
 from app.audio import AnalysisDraftRepository, AudioAnalysisService, AudioAnalyzer
@@ -51,16 +51,16 @@ def get_preference_interpreter() -> PreferenceInterpretationService:
     fallback = DemoPreferenceProvider()
     if settings.demo_mode or settings.ai_provider == "demo":
         return PreferenceInterpretationService(fallback, fallback)
-    if not settings.ai_api_key:
+    if not settings.gemini_api_key:
         return PreferenceInterpretationService(
             fallback,
             fallback,
             initial_fallback_reason=(
-                "OpenAI is configured without an API key; local rules used."
+                "Gemini is configured without an API key; local rules used."
             ),
         )
-    primary = OpenAIPreferenceProvider(
-        api_key=settings.ai_api_key,
+    primary = GeminiPreferenceProvider(
+        api_key=settings.gemini_api_key,
         model=settings.ai_model,
         timeout_seconds=settings.request_timeout_seconds,
     )

@@ -2,14 +2,14 @@
 
 from app.ai.providers import (
     DemoPreferenceProvider,
-    OpenAIPreferenceProvider,
+    GeminiPreferenceProvider,
     PreferenceProviderError,
 )
 from app.ai.service import PreferenceInterpretationService
 
 __all__ = [
     "DemoPreferenceProvider",
-    "OpenAIPreferenceProvider",
+    "GeminiPreferenceProvider",
     "PreferenceInterpretationService",
     "PreferenceProviderError",
 ]

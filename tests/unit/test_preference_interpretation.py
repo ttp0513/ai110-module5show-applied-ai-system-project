@@ -4,7 +4,7 @@ import asyncio
 
 from app.ai.providers import (
     DemoPreferenceProvider,
-    OpenAIPreferenceProvider,
+    GeminiPreferenceProvider,
     PreferenceProviderError,
 )
 from app.ai.service import PreferenceInterpretationService
@@ -53,7 +53,7 @@ def test_prompt_instructions_cannot_create_unsupported_fields() -> None:
 
 
 class FailingProvider:
-    name = "openai"
+    name = "gemini"
     model = "test-model"
 
     async def extract(self, prompt: str) -> None:
@@ -74,33 +74,40 @@ def test_provider_failure_uses_explicit_deterministic_fallback() -> None:
     assert response.fallback_reason
 
 
-class FakeResponses:
+class FakeModels:
     def __init__(self, output: ExtractedPreferences) -> None:
         self.output = output
         self.kwargs: dict[str, object] = {}
 
-    async def parse(self, **kwargs: object) -> object:
+    async def generate_content(self, **kwargs: object) -> object:
         self.kwargs = kwargs
-        return type("FakeResponse", (), {"output_parsed": self.output})()
+        return type("FakeResponse", (), {"text": self.output.model_dump_json()})()
+
+
+class FakeAsyncClient:
+    def __init__(self, models: FakeModels) -> None:
+        self.models = models
 
 
 class FakeClient:
-    def __init__(self, responses: FakeResponses) -> None:
-        self.responses = responses
+    def __init__(self, models: FakeModels) -> None:
+        self.aio = FakeAsyncClient(models)
 
 
-def test_openai_adapter_requests_non_stored_structured_output() -> None:
+def test_gemini_adapter_requests_validated_structured_output() -> None:
     output = asyncio.run(
         DemoPreferenceProvider().extract("romantic synthwave night drive")
     )
-    fake_responses = FakeResponses(output)
-    provider = object.__new__(OpenAIPreferenceProvider)
+    fake_models = FakeModels(output)
+    provider = object.__new__(GeminiPreferenceProvider)
     provider.model = "test-structured-model"
-    provider.client = FakeClient(fake_responses)
+    provider.client = FakeClient(fake_models)
 
     extracted = asyncio.run(provider.extract("romantic synthwave night drive"))
 
     assert extracted == output
-    assert fake_responses.kwargs["text_format"] is ExtractedPreferences
-    assert fake_responses.kwargs["store"] is False
-    assert fake_responses.kwargs["model"] == "test-structured-model"
+    assert fake_models.kwargs["model"] == "test-structured-model"
+    config = fake_models.kwargs["config"]
+    assert config.response_mime_type == "application/json"
+    assert config.response_json_schema == ExtractedPreferences.model_json_schema()
+    assert "untrusted data" in config.system_instruction

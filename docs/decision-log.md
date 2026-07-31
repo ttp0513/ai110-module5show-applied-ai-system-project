@@ -31,12 +31,13 @@
 | D-021 | Start retrieval with local TF-IDF and controlled semantic cues | Accepted | Keeps Phase 6 reproducible and credential-free while preserving a future embedding adapter boundary |
 | D-022 | Rebuild the caller-visible retrieval index per request for the MVP | Accepted | Immediately reflects private-song ownership and deletion without stale index state |
 | D-023 | Generate Phase 6 explanations only from structured catalog evidence | Accepted | Unknown requests must return no match instead of hallucinated songs or attributes |
-| D-024 | Use Responses API Structured Outputs for configured preference extraction | Accepted | Pydantic-constrained output maps safely into the existing recommendation contract |
+| D-024 | Use Responses API Structured Outputs for configured preference extraction | Superseded | Replaced by the product owner's Gemini API selection in D-030 |
 | D-025 | Require visible review before interpreted preferences affect ranking | Accepted | Keeps AI advisory and lets listeners correct meaning before use |
 | D-026 | Preserve a deterministic local preference interpreter | Accepted | The core journey remains reproducible without a credential or provider availability |
 | D-027 | Weight reviewed feature similarity at 65% and retrieval relevance at 35% | Accepted | Explicitly reviewed intent should dominate wording similarity in the initial hybrid policy |
 | D-028 | Fall back to feature-only ranking when retrieval finds no match | Accepted | Unknown wording should not disable useful recommendations or cause invented candidates |
 | D-029 | Render Phase 8 explanations from validated score evidence | Accepted | Deterministic grounded prose prevents unsupported model claims while preserving transparency |
+| D-030 | Use Gemini structured output for configured preference extraction | Accepted | Supports the selected free-tier provider while preserving JSON Schema validation and deterministic fallback |
 
 ## Decisions still open
 

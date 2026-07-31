@@ -105,8 +105,8 @@ unknown requests produce no invented candidates.
 Phase 7 turns natural-language vibe descriptions into schema-validated
 recommendation preferences. Users review the provider, extracted fields,
 fallback status, and ambiguities before applying values to the visible builder.
-The default deterministic interpreter needs no credentials; an optional OpenAI
-Responses API adapter uses Pydantic Structured Outputs.
+The default deterministic interpreter needs no credentials; an optional Gemini
+adapter uses JSON Schema structured output validated by Pydantic.
 
 ## Phase 8 documents
 
@@ -170,8 +170,20 @@ contract.
 
 Application environment variables use the `VYBE_` prefix. Copy
 `.env.example` to `.env` for local development. Demo mode is enabled by
-default, no AI credential is required for the Phase 2 scaffold, and `.env` is
-excluded from version control.
+default and requires no AI credential. To enable Gemini preference extraction,
+set these values in the ignored `.env` file:
+
+```text
+VYBE_DEMO_MODE=false
+VYBE_AI_PROVIDER=gemini
+VYBE_AI_MODEL=gemini-3.5-flash
+VYBE_GEMINI_API_KEY=<your-key>
+```
+
+Never commit the key. Google states that content submitted through Gemini's
+free tier may be used to improve its products, so do not submit confidential or
+personally identifying text when using that tier. See the
+[Gemini API pricing and data-use terms](https://ai.google.dev/gemini-api/docs/pricing).
 
 ## Planned delivery phases
 

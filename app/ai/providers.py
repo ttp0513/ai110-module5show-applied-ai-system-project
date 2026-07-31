@@ -3,7 +3,8 @@
 import re
 from typing import Protocol
 
-from openai import AsyncOpenAI
+from google import genai
+from google.genai import types
 
 from app.ai.prompts import preference_extraction_instructions
 from app.models.preference_interpretation import ExtractedPreferences
@@ -131,10 +132,10 @@ class DemoPreferenceProvider:
         )
 
 
-class OpenAIPreferenceProvider:
-    """Use Responses API Structured Outputs for validated extraction."""
+class GeminiPreferenceProvider:
+    """Use Gemini structured output for validated preference extraction."""
 
-    name = "openai"
+    name = "gemini"
 
     def __init__(
         self,
@@ -143,27 +144,33 @@ class OpenAIPreferenceProvider:
         timeout_seconds: int,
     ) -> None:
         self.model = model
-        self.client = AsyncOpenAI(
+        self.client = genai.Client(
             api_key=api_key,
-            timeout=float(timeout_seconds),
-            max_retries=1,
+            http_options=types.HttpOptions(timeout=timeout_seconds * 1000),
         )
 
     async def extract(self, prompt: str) -> ExtractedPreferences:
         try:
-            response = await self.client.responses.parse(
+            response = await self.client.aio.models.generate_content(
                 model=self.model,
-                instructions=preference_extraction_instructions(),
-                input=prompt,
-                text_format=ExtractedPreferences,
-                store=False,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=preference_extraction_instructions(),
+                    response_mime_type="application/json",
+                    response_json_schema=ExtractedPreferences.model_json_schema(),
+                ),
             )
         except Exception as error:
             raise PreferenceProviderError(
                 "The configured AI provider is unavailable."
             ) from error
-        if response.output_parsed is None:
+        if not response.text:
             raise PreferenceProviderError(
                 "The configured AI provider returned no usable interpretation."
             )
-        return response.output_parsed
+        try:
+            return ExtractedPreferences.model_validate_json(response.text)
+        except ValueError as error:
+            raise PreferenceProviderError(
+                "The configured AI provider returned invalid preferences."
+            ) from error

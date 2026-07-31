@@ -20,17 +20,22 @@ at this stage.
 `PreferenceExtractionProvider` is an application-owned interface with two
 implementations:
 
-- `OpenAIPreferenceProvider` uses the Responses API and Pydantic Structured
-  Outputs.
+- `GeminiPreferenceProvider` uses the Google GenAI SDK and JSON Schema
+  structured output validated with Pydantic.
 - `DemoPreferenceProvider` uses deterministic, versioned local rules.
 
-OpenAI's current Structured Outputs documentation recommends schema-constrained
-responses and demonstrates `client.responses.parse` with a Pydantic model:
-<https://developers.openai.com/api/docs/guides/structured-outputs>.
+Google's structured-output documentation supports Pydantic-generated JSON
+schemas and requires application validation of the returned values:
+<https://ai.google.dev/gemini-api/docs/structured-output>.
 
-The OpenAI request sets `store=False`. Raw prompts are not persisted by VYBE or
-written to standard logs. Normal logs contain prompt length, provider name,
-fallback status, and extracted-field count only.
+Raw prompts are not persisted by VYBE or written to standard logs. Normal logs
+contain prompt length, provider name, fallback status, and extracted-field
+count only. Google states that content submitted through Gemini's free tier may
+be used to improve its products. Users should not submit confidential or
+personally identifying text through that tier. Gemini API retention and
+training policies remain external to VYBE; review the current
+[pricing and data-use terms](https://ai.google.dev/gemini-api/docs/pricing)
+before deployment.
 
 ## Structured contract
 
@@ -66,17 +71,17 @@ The default configuration remains credential-free:
 ```text
 VYBE_DEMO_MODE=true
 VYBE_AI_PROVIDER=demo
-VYBE_AI_MODEL=gpt-5.6
-VYBE_AI_API_KEY=
+VYBE_AI_MODEL=gemini-3.5-flash
+VYBE_GEMINI_API_KEY=
 ```
 
-To use OpenAI Structured Outputs:
+To use Gemini structured output:
 
 ```text
 VYBE_DEMO_MODE=false
-VYBE_AI_PROVIDER=openai
-VYBE_AI_MODEL=gpt-5.6
-VYBE_AI_API_KEY=<secret>
+VYBE_AI_PROVIDER=gemini
+VYBE_AI_MODEL=gemini-3.5-flash
+VYBE_GEMINI_API_KEY=<secret>
 ```
 
 The API key belongs only in the ignored `.env` file or deployment secret
@@ -102,5 +107,5 @@ names.
 
 Tests verify fixed extraction cases, determinism, prompt-injection resistance,
 unsupported-field exclusion, schema bounds, provider fallback, non-storage in
-the OpenAI adapter, API limits, UI integration, and the complete path from
+the Gemini adapter, API limits, UI integration, and the complete path from
 interpreted preferences to deterministic recommendations.
