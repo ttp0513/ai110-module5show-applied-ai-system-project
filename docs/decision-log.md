@@ -38,6 +38,8 @@
 | D-028 | Fall back to feature-only ranking when retrieval finds no match | Accepted | Unknown wording should not disable useful recommendations or cause invented candidates |
 | D-029 | Render Phase 8 explanations from validated score evidence | Accepted | Deterministic grounded prose prevents unsupported model claims while preserving transparency |
 | D-030 | Use Gemini structured output for configured preference extraction | Accepted | Supports the selected free-tier provider while preserving JSON Schema validation and deterministic fallback |
+| D-031 | Keep Phase 9 audio analysis synchronous and omit a placeholder jobs API | Accepted | A job contract should be introduced only with a real background worker and measured need |
+| D-032 | Make recommendation refinements complete and stateless | Accepted | Reviewed preferences and skipped songs remain visible, reproducible, and free of hidden server history |
 
 ## Decisions still open
 

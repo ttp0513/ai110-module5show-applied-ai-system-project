@@ -47,3 +47,15 @@ class HybridRecommendationResponse(BaseModel):
     used_retrieval_fallback: bool
     explanation_mode: str = "deterministic_grounded"
     recommendations: list[HybridRecommendation]
+
+
+class RecommendationRefinementRequest(HybridRecommendationRequest):
+    """Complete reviewed state for reranking while skipping prior results."""
+
+    excluded_song_ids: set[str] = Field(default_factory=set, max_length=20)
+
+
+class RecommendationRefinementResponse(HybridRecommendationResponse):
+    """Hybrid results plus the number of caller-visible songs skipped."""
+
+    excluded_song_count: int = Field(ge=0)

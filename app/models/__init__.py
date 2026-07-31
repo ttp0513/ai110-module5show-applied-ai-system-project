@@ -10,6 +10,8 @@ from app.models.hybrid import (
     HybridRecommendationRequest,
     HybridRecommendationResponse,
     HybridScoreEvidence,
+    RecommendationRefinementRequest,
+    RecommendationRefinementResponse,
 )
 from app.models.preference_interpretation import (
     ExtractedPreferences,
@@ -48,6 +50,8 @@ __all__ = [
     "HybridRecommendationRequest",
     "HybridRecommendationResponse",
     "HybridScoreEvidence",
+    "RecommendationRefinementRequest",
+    "RecommendationRefinementResponse",
     "Mood",
     "ManualSongCreate",
     "PrivateSongRecord",

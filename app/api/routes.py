@@ -47,6 +47,8 @@ from app.models import (
     PreferenceInterpretationRequest,
     PreferenceInterpretationResponse,
     PrivateSongRecord,
+    RecommendationRefinementRequest,
+    RecommendationRefinementResponse,
     RecommendationResponse,
     RetrievalQuery,
     RetrievalResponse,
@@ -114,13 +116,26 @@ class PrivateSongListResponse(BaseModel):
     records: list[PrivateSongRecord]
 
 
+class ApiCapabilitiesResponse(BaseModel):
+    """Public feature and limit discovery for first-party or future clients."""
+
+    api_version: str
+    phase: int
+    capabilities: list[str]
+    default_recommendation_count: int
+    maximum_recommendation_count: int
+    maximum_prompt_length: int
+    maximum_audio_upload_bytes: int
+
+
 @router.get("/api", tags=["application"])
 def application_summary() -> dict[str, str]:
     """Identify the API while the product UI is developed in a later phase."""
 
     return {
         "name": get_settings().app_name,
-        "status": "Phase 8 hybrid grounded recommendations",
+        "status": "Phase 9 production-ready backend API",
+        "version": "0.2.0",
         "documentation": "/docs",
     }
 
@@ -135,7 +150,35 @@ def health_check() -> HealthResponse:
         application=settings.app_name,
         environment=settings.environment,
         demo_mode=settings.demo_mode,
-        phase=8,
+        phase=9,
+    )
+
+
+@router.get(
+    "/api/capabilities",
+    response_model=ApiCapabilitiesResponse,
+    tags=["application"],
+)
+def api_capabilities() -> ApiCapabilitiesResponse:
+    """Expose safe client configuration without credentials or internal paths."""
+
+    settings = get_settings()
+    return ApiCapabilitiesResponse(
+        api_version="0.2.0",
+        phase=9,
+        capabilities=[
+            "deterministic_recommendations",
+            "hybrid_grounded_recommendations",
+            "recommendation_refinement",
+            "private_song_catalog",
+            "temporary_audio_analysis",
+            "ai_preference_interpretation",
+            "catalog_retrieval",
+        ],
+        default_recommendation_count=settings.recommendation_count,
+        maximum_recommendation_count=20,
+        maximum_prompt_length=settings.max_prompt_length,
+        maximum_audio_upload_bytes=settings.max_audio_upload_bytes,
     )
 
 
@@ -279,6 +322,48 @@ def hybrid_recommendations(
         songs=songs,
         candidate_limit=settings.retrieval_candidate_count,
         result_limit=limit,
+    )
+
+
+@router.post(
+    "/api/recommendations/refine",
+    response_model=RecommendationRefinementResponse,
+    tags=["recommendations"],
+)
+def refine_recommendations(
+    request: RecommendationRefinementRequest,
+    catalog: CatalogDependency,
+    private_catalog: PrivateCatalogDependency,
+    hybrid: HybridRecommenderDependency,
+    session_id: SessionDependency,
+    limit: Annotated[int, Query(ge=1, le=20)] = 5,
+) -> RecommendationRefinementResponse:
+    """Rerank reviewed intent while excluding songs the listener skipped."""
+
+    settings = get_settings()
+    if len(request.query) > settings.max_prompt_length:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=(
+                "The query exceeds the configured "
+                f"{settings.max_prompt_length}-character limit."
+            ),
+        )
+    visible_songs = catalog.list_all() + private_catalog.list_songs(session_id)
+    songs = tuple(
+        song for song in visible_songs if song.id not in request.excluded_song_ids
+    )
+    excluded_count = len(visible_songs) - len(songs)
+    result = hybrid.recommend(
+        query=request.query,
+        preferences=request.preferences,
+        songs=songs,
+        candidate_limit=settings.retrieval_candidate_count,
+        result_limit=limit,
+    )
+    return RecommendationRefinementResponse(
+        **result.model_dump(),
+        excluded_song_count=excluded_count,
     )
 
 

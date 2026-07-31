@@ -109,12 +109,12 @@ Planned routes are documented but not implemented until their owning phases:
 | `POST` | `/api/recommendations/deterministic` | Implemented in 3 |
 | `POST` | `/api/preferences/interpret` | Implemented in 7 |
 | `POST` | `/api/recommendations` | Implemented in 8 |
-| `POST` | `/api/recommendations/refine` | 8 and 9 |
+| `POST` | `/api/recommendations/refine` | Implemented in 9 |
 | `GET` | `/api/songs/private` | Implemented in 4 |
 | `POST` | `/api/songs/private` | Implemented in 4 |
 | `POST` | `/api/songs/analyze` | 5 and 9 |
 | `POST` | `/api/retrieval/search` | Implemented in 6 |
-| `GET` | `/api/jobs/{job_id}` | 5 and 9 |
+| `GET` | `/api/jobs/{job_id}` | Deferred; synchronous MVP analysis |
 | `DELETE` | `/api/songs/private/{song_id}` | Implemented in 4 |
 
 ## 7. Request lifecycle

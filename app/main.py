@@ -18,7 +18,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(
         title=settings.app_name,
-        version="0.1.0",
+        version="0.2.0",
         description="AI-assisted, catalog-grounded music discovery.",
     )
     application.mount(
