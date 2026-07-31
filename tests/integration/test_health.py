@@ -27,7 +27,7 @@ def test_health_check() -> None:
         "application": "VYBE",
         "environment": "development",
         "demo_mode": True,
-        "phase": 9,
+        "phase": 11,
     }
 
 
@@ -35,4 +35,4 @@ def test_api_describes_current_phase() -> None:
     response = asyncio.run(get("/api"))
 
     assert response.status_code == 200
-    assert response.json()["status"] == "Phase 9 production-ready backend API"
+    assert response.json()["status"] == "Phase 11 operational guardrails"

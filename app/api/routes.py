@@ -134,8 +134,8 @@ def application_summary() -> dict[str, str]:
 
     return {
         "name": get_settings().app_name,
-        "status": "Phase 9 production-ready backend API",
-        "version": "0.2.0",
+        "status": "Phase 11 operational guardrails",
+        "version": "0.3.0",
         "documentation": "/docs",
     }
 
@@ -150,7 +150,7 @@ def health_check() -> HealthResponse:
         application=settings.app_name,
         environment=settings.environment,
         demo_mode=settings.demo_mode,
-        phase=9,
+        phase=11,
     )
 
 
@@ -164,8 +164,8 @@ def api_capabilities() -> ApiCapabilitiesResponse:
 
     settings = get_settings()
     return ApiCapabilitiesResponse(
-        api_version="0.2.0",
-        phase=9,
+        api_version="0.3.0",
+        phase=11,
         capabilities=[
             "deterministic_recommendations",
             "hybrid_grounded_recommendations",
@@ -174,6 +174,7 @@ def api_capabilities() -> ApiCapabilitiesResponse:
             "temporary_audio_analysis",
             "ai_preference_interpretation",
             "catalog_retrieval",
+            "operational_guardrails",
         ],
         default_recommendation_count=settings.recommendation_count,
         maximum_recommendation_count=20,

@@ -40,6 +40,9 @@
 | D-030 | Use Gemini structured output for configured preference extraction | Accepted | Supports the selected free-tier provider while preserving JSON Schema validation and deterministic fallback |
 | D-031 | Keep Phase 9 audio analysis synchronous and omit a placeholder jobs API | Accepted | A job contract should be introduced only with a real background worker and measured need |
 | D-032 | Make recommendation refinements complete and stateless | Accepted | Reviewed preferences and skipped songs remain visible, reproducible, and free of hidden server history |
+| D-033 | Generate request IDs at the server boundary | Accepted | Prevents log spoofing and makes failures traceable without exposing internals |
+| D-034 | Log request metadata but never request content | Accepted | Supports operations while protecting prompts, audio, cookies, and credentials |
+| D-035 | Enforce same-origin mutations and security headers in the application | Accepted | Adds browser defense in depth before production proxy controls are selected |
 
 ## Decisions still open
 

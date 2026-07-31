@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
 from app.config import get_settings
+from app.operations import install_operations
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -18,9 +19,10 @@ def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(
         title=settings.app_name,
-        version="0.2.0",
+        version="0.3.0",
         description="AI-assisted, catalog-grounded music discovery.",
     )
+    install_operations(application, settings)
     application.mount(
         "/static",
         StaticFiles(directory=PROJECT_ROOT / "app" / "static"),

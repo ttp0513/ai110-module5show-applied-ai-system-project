@@ -27,9 +27,10 @@ def test_capability_manifest_exposes_safe_client_limits() -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["api_version"] == "0.2.0"
-    assert payload["phase"] == 9
+    assert payload["api_version"] == "0.3.0"
+    assert payload["phase"] == 11
     assert "recommendation_refinement" in payload["capabilities"]
+    assert "operational_guardrails" in payload["capabilities"]
     assert payload["maximum_recommendation_count"] == 20
     assert "gemini_api_key" not in response.text
 

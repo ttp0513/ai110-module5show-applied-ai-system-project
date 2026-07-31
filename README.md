@@ -197,7 +197,7 @@ personally identifying text when using that tier. See the
 8. Hybrid ranking and grounded explanations — in review
 9. Backend API — in review
 10. Responsive user interface — in progress
-11. Logging, security, and guardrails
+11. Logging, security, and guardrails — in review
 12. Testing and AI evaluation
 13. Documentation and final delivery
 

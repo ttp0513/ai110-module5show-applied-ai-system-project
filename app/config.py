@@ -36,6 +36,11 @@ class Settings(BaseSettings):
         le=100 * 1024 * 1024,
     )
     max_audio_duration_seconds: int = Field(default=900, ge=15, le=3600)
+    max_request_body_bytes: int = Field(
+        default=26 * 1024 * 1024,
+        ge=1024,
+        le=101 * 1024 * 1024,
+    )
 
 
 @lru_cache
