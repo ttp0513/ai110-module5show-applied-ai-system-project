@@ -62,6 +62,11 @@ and then through the existing `UserPreferences` validator.
 5. Apply updates the visible manual builder.
 6. The listener can change any applied control before requesting rankings.
 
+The header identifies **Gemini AI ready** when the provider is safely
+configured, **Gemini AI active** only after a validated Gemini response,
+**Local demo fallback** in deterministic mode, and **Gemini unavailable · local
+fallback** when a provider request fails or returns invalid output.
+
 This keeps the model advisory. It cannot silently modify a recommendation.
 
 ## Fallback and configuration

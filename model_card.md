@@ -199,6 +199,10 @@ review as AI-generated code.
 - Private-session filtering and immediate upload deletion.
 - Sanitized structured logs, request IDs, safe errors, and HTTP guardrails.
 - No popularity profiling, playback, or listening-history collection.
+- The interface distinguishes Gemini configuration, successful Gemini use,
+  deterministic demo mode, and provider fallback. A configured provider is not
+  presented as successful until its response passes schema and domain
+  validation.
 
 ## Monitoring and change policy
 

@@ -15,6 +15,8 @@ query or refinement state.
 
 ## Interaction and accessibility behavior
 
+- The live status pill distinguishes configured Gemini, validated Gemini use,
+  deterministic demo mode, and provider fallback without exposing credentials.
 - Every skip action includes the song title in its accessible label.
 - The results list announces a busy state while reranking.
 - Errors appear in a live status region without removing the previous results.

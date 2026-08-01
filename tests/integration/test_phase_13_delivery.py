@@ -66,6 +66,8 @@ def test_reproducible_evidence_covers_release_commands_and_interactions() -> Non
         "## Interaction 1",
         "## Interaction 2",
         "## Interaction 3",
+        "provider: gemini",
+        "used_fallback: false",
         "76 tests passed",
         "Overall metric pass rate: 100.00%",
     )

@@ -1,8 +1,9 @@
 # VYBE reproducible execution evidence
 
 This log records a local deterministic-demo verification run conducted on
-July 31, 2026 from the repository root on Windows. It contains no API key,
-cookie, uploaded audio, private song, or raw request header.
+July 31, 2026 and a separate live Gemini interaction verified on August 1,
+2026 from the repository root on Windows. It contains no API key, cookie,
+uploaded audio, private song, or raw request header.
 
 ## Environment and dependencies
 
@@ -152,19 +153,34 @@ mood: chill
 explanation_mode: deterministic_grounded
 ```
 
-## Interaction 2: romantic night-drive interpretation
+## Interaction 2: live Gemini study-music interpretation
 
 ```text
 Input:
-romantic neon night drive
+I want to study for exam with soft and classical music
 
-AI interpretation:
-preferred_genres: [synthwave]
-preferred_moods: [romantic]
-provider: demo
-model: rules-v1
+Gemini interpretation summary:
+User wants soft classical music for studying, indicating a preference for
+classical genre and focused, chill, or relaxed moods.
+
+Structured preferences:
+preferred_genres: [classical]
+preferred_moods: [chill, focused, relaxed]
+
+Ambiguity:
+The term "soft" suggests lower energy and higher acousticness, but exact
+levels are ambiguous.
+
+Provider information:
+provider: gemini
+model: gemini-3.5-flash
+used_fallback: false
 needs_review: true
 ```
+
+This network-dependent result confirms the applied-AI path returned valid,
+reviewable preferences. It does not guarantee identical output across future
+model versions, quotas, or provider conditions.
 
 ## Interaction 3: skip and refine
 
@@ -187,5 +203,7 @@ new_first_result: Focus Flow — LoRoom
 3. Start Uvicorn on `127.0.0.1:8000`.
 4. Run the commands above from the repository root.
 5. Expect the deterministic interaction values and evaluation metrics to match.
+6. To reproduce Interaction 2, configure Gemini as described in the README;
+   live wording may vary even when the structured fields remain valid.
 
 Timing, UUID request IDs, and the generated report timestamp will differ by run.

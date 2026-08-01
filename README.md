@@ -104,6 +104,20 @@ Gemini is used only to extract reviewable preferences. Audio features are
 measured locally, genre and mood estimates use the local specialized model,
 retrieval is local TF-IDF, and final ranking is deterministic.
 
+### AI mode indicators
+
+The header reports the current preference-interpreter state:
+
+- **Gemini AI ready** — Gemini is configured and available for requests.
+- **Gemini AI active** — the latest interpretation was produced by Gemini and
+  passed schema and domain validation.
+- **Local demo fallback** — credential-free deterministic demo mode is active.
+- **Gemini unavailable · local fallback** — Gemini failed or returned invalid
+  output, so VYBE continued with local rules.
+
+“Gemini AI ready” describes the configuration, not the outcome of every
+request. VYBE reports Gemini as active only after a response passes validation.
+
 ## Primary user journey
 
 1. Describe a vibe such as “romantic futuristic night drive.”
@@ -121,8 +135,9 @@ the records because the MVP has no account-recovery system.
 
 ## Sample interactions
 
-The following outputs were regenerated from VYBE 1.0.0 in deterministic demo
-mode. They are intentionally concise excerpts of the structured API responses.
+The following outputs were regenerated from VYBE 1.0.0. Examples 1 and 3 use
+the reproducible local demo path. Example 2 demonstrates the configured Gemini
+applied-AI path. The outputs are concise excerpts of structured responses.
 
 ### Example 1: Focused lo-fi discovery
 
@@ -146,21 +161,34 @@ mood: chill
 explanation_mode: deterministic_grounded
 ```
 
-### Example 2: Romantic night-drive interpretation
+### Example 2: Gemini study-music interpretation
 
 ```text
 Input:
-romantic neon night drive
+I want to study for exam with soft and classical music
 
-AI interpretation:
-preferred_genres: [synthwave]
-preferred_moods: [romantic]
-provider: demo
-model: rules-v1
+Gemini interpretation summary:
+User wants soft classical music for studying, indicating a preference for
+classical genre and focused, chill, or relaxed moods.
+
+Structured preferences:
+preferred_genres: [classical]
+preferred_moods: [chill, focused, relaxed]
+
+Ambiguity:
+The term "soft" suggests lower energy and higher acousticness, but exact
+levels are ambiguous.
+
+Provider information:
+provider: gemini
+model: gemini-3.5-flash
+used_fallback: false
 needs_review: true
 ```
 
-The listener reviews these fields before they can affect ranking.
+Gemini converted the description into schema-validated preferences and
+disclosed uncertainty instead of inventing exact values. The listener reviews
+these fields before they can affect ranking.
 
 ### Example 3: Skip and refine
 
