@@ -5,6 +5,24 @@ moment, reviews the interpreted music preferences, and receives ranked songs
 from an approved catalog with visible score evidence. VYBE recommends music;
 it does not stream, preview, or play audio.
 
+The project matters because it demonstrates how generative AI can improve a
+recommendation experience without silently controlling the result. Model output
+is bounded, reviewable, and backed by deterministic retrieval, ranking,
+fallback, and evaluation systems.
+
+## From Music Recommender Simulation to VYBE
+
+This application evolved from my Modules 1-3 project, **Music Recommender
+Simulation**. The original Python command-line project used content-based
+filtering to compare manually entered listener preferences with a synthetic
+60-song catalog, calculate deterministic weighted scores, and return
+explainable top-five recommendations.
+
+VYBE expands that foundation into a responsive FastAPI application with
+Gemini-assisted preference extraction, catalog retrieval, user-owned private
+songs, temporary audio analysis, hybrid ranking, security guardrails, and
+measurable AI evaluation.
+
 ## What the MVP does
 
 - Interprets natural-language vibes with Gemini structured output or a local
@@ -21,7 +39,13 @@ it does not stream, preview, or play audio.
 
 ## Quick start on Windows
 
-Requirements: Python 3.12–3.14 and a modern browser.
+Requirements: Python 3.12-3.14 and a modern browser.
+
+1. Open PowerShell in the repository root.
+2. Create and activate an isolated environment.
+3. Install the pinned application and development dependencies.
+4. Copy the example configuration to the ignored local `.env` file.
+5. Start the FastAPI development server.
 
 ```powershell
 py -3.12 -m venv .venv
@@ -32,11 +56,15 @@ Copy-Item .env.example .env
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Open:
+6. Open one of these local URLs:
 
 - Application: <http://127.0.0.1:8000>
 - Interactive API documentation: <http://127.0.0.1:8000/docs>
 - Health check: <http://127.0.0.1:8000/api/health>
+
+7. Keep demo mode for credential-free use, or follow the Gemini configuration
+   below and restart the server.
+8. Run the verification and evaluation commands before changing the system.
 
 If Windows reports `WinError 10013`, the port is unavailable or restricted.
 Use another local port:
@@ -91,6 +119,66 @@ stored in `data/vybe.db`. They survive server restarts and remain available to
 that browser until deleted. Clearing the cookie breaks the browser's link to
 the records because the MVP has no account-recovery system.
 
+## Sample interactions
+
+The following outputs were regenerated from VYBE 1.0.0 in deterministic demo
+mode. They are intentionally concise excerpts of the structured API responses.
+
+### Example 1: Focused lo-fi discovery
+
+```text
+Input:
+cozy lofi beats for coding
+
+AI interpretation:
+preferred_genres: [lofi]
+preferred_moods: [chill, focused]
+provider: demo
+model: rules-v1
+needs_review: true
+
+Recommendation output:
+mode: hybrid
+used_retrieval_fallback: false
+first_result: Midnight Coding — LoRoom
+genre: lofi
+mood: chill
+explanation_mode: deterministic_grounded
+```
+
+### Example 2: Romantic night-drive interpretation
+
+```text
+Input:
+romantic neon night drive
+
+AI interpretation:
+preferred_genres: [synthwave]
+preferred_moods: [romantic]
+provider: demo
+model: rules-v1
+needs_review: true
+```
+
+The listener reviews these fields before they can affect ranking.
+
+### Example 3: Skip and refine
+
+```text
+VYPE recommends first result:
+Midnight Coding — LoRoom
+
+User action:
+Select "Not this one"
+
+Refinement output:
+excluded_song_count: 1
+new_first_result: Focus Flow — LoRoom
+```
+
+VYBE keeps the same approved vibe, skips that song, and reranks the remaining
+options. No hidden chat history affects the result.
+
 ## Privacy and safety
 
 - Uploaded audio is temporary and is deleted on success or failure.
@@ -105,7 +193,7 @@ the records because the MVP has no account-recovery system.
 For a public deployment, add HTTPS, trusted-host enforcement, rate limiting,
 monitoring, backups, log retention, and secret rotation at the hosting layer.
 
-## Verification and evaluation
+## Testing summary
 
 ```powershell
 python -m ruff check .
@@ -120,6 +208,30 @@ ranking, grounding, constraints, fallback, private-song retrieval, and feature
 ranges. The current controlled set passes all thresholds, but it is not a claim
 of perfect accuracy for arbitrary prompts, live Gemini versions, or all music.
 
+What worked:
+
+- 74 unit, integration, security, privacy, UI-contract, and reliability tests
+  pass.
+- The fixed evaluation passes every declared threshold, with 100% catalog
+  grounding, 100% forced-provider fallback success, and zero unsupported
+  factual claims in the controlled set.
+- Repeated deterministic requests produce identical rankings and scores.
+
+What remains limited or unverified:
+
+- Automated tests mock Gemini's structured response instead of spending quota
+  on a changing live model.
+- The evaluation set is small, synthetic, and English-focused; 100% on this set
+  does not mean universal accuracy.
+- Genre and mood are subjective, and the catalog-trained audio classifier is
+  not a broad music-understanding model.
+- The refinement UI still needs a final manual desktop/mobile visual pass.
+
+The main testing lesson was that AI quality cannot be represented by a single
+“works” result. VYBE tests schema validity, grounding, constraints, privacy,
+fallback, repeatability, and ranking quality separately so a regression is
+visible and actionable.
+
 ## Architecture
 
 VYBE is a FastAPI modular monolith: one deployable process with separate
@@ -127,6 +239,29 @@ packages for API transport, AI providers, audio analysis, catalog storage,
 retrieval, recommendation, and orchestration. SQLite stores private metadata;
 the built-in catalog is version controlled; uploaded audio uses a temporary
 workspace; Gemini is an optional external preference-extraction provider.
+
+The primary [System Architecture Diagram](diagrams/component-architecture.mmd)
+shows the module boundaries. At runtime, the main flow is:
+
+```text
+Listener enters a vibe
+        ↓
+FastAPI validates the request and resolves the private session
+        ↓
+Gemini or the deterministic fallback extracts bounded preferences
+        ↓
+Listener reviews and corrects the interpretation
+        ↓
+Local TF-IDF retrieves caller-visible catalog songs
+        ↓
+Deterministic hybrid scoring ranks the candidates
+        ↓
+VYBE returns grounded recommendations and score evidence
+```
+
+SQLite stores only approved private song metadata. Uploaded audio enters a
+temporary workspace, is analyzed locally, and is deleted before the listener
+reviews the proposed values.
 
 Start with:
 
@@ -137,6 +272,20 @@ Start with:
 - [User journeys](diagrams/user-journeys.mmd)
 - [Model card](docs/model-card.md)
 - [Decision log](docs/decision-log.md)
+
+## Design decisions and trade-offs
+
+| Decision | Why it was selected | Trade-off |
+|---|---|---|
+| FastAPI modular monolith | One process is easy to run while packages preserve clear boundaries | Components cannot scale independently |
+| SQLite private catalog | Durable local storage without a database server | Not designed for multiple application hosts |
+| Gemini structured output | Handles flexible vibe language within a strict schema | Adds provider, quota, privacy, and model-version dependencies |
+| Local deterministic fallback | Keeps the core journey available without credentials | Understands fewer language variations than a large model |
+| Local TF-IDF retrieval | Reproducible, private, fast, and credential-free | Has limited understanding of novel or indirect language |
+| Deterministic final ranking | Scores and explanations are auditable and testable | Does not learn from behavioral history |
+| Mandatory user review | Prevents uncertain AI output from silently changing results | Adds one step to the journey |
+| SQLite metadata but no audio retention | Private songs survive restarts without storing media | The app cannot provide playback or reanalyze a deleted upload |
+| No popularity feature | Avoids changing, unverifiable, and user-inaccessible data | Cannot recommend based on current trends |
 
 ## Delivery documentation
 
@@ -162,3 +311,16 @@ Start with:
 - No popularity, listening-history, or behavioral tracking.
 - No claim that AI-estimated genre or mood is objective fact.
 - No production hosting configuration is included.
+
+## Reflection
+
+This project taught me that calling an AI API is only a small part of building
+an AI system. The more difficult work was deciding what the model should
+control, validating its output, creating useful fallback behavior, protecting
+user data, and making uncertainty visible. Combining bounded AI assistance
+with deterministic components and human review produced a system that is more
+reliable and easier to explain than an unconstrained model-only workflow.
+
+The graded responsible-AI reflection—including how I collaborated with AI and
+evaluated helpful and flawed suggestions—belongs in `model_card.md` and is kept
+separate from this general project reflection.
