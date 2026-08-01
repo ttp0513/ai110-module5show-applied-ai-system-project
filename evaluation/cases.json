@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "preference_cases": [
+    {"prompt": "cozy lofi beats for coding", "genre": "lofi", "mood": "focused"},
+    {"prompt": "romantic neon night drive", "genre": "synthwave", "mood": "romantic"},
+    {"prompt": "intense rock guitar workout", "genre": "rock", "mood": "intense"},
+    {"prompt": "peaceful orchestral strings", "genre": "classical", "mood": "relaxed"},
+    {"prompt": "happy latin celebration", "genre": "latin", "mood": "happy"}
+  ],
+  "retrieval_cases": [
+    {"query": "late-night coding study beats", "genre": "lofi", "mood": "focused"},
+    {"query": "retro neon cyberpunk night drive", "genre": "synthwave", "mood": "moody"},
+    {"query": "orchestral piano study music", "genre": "classical", "mood": null},
+    {"query": "guitar drums workout anthem", "genre": "rock", "mood": "intense"},
+    {"query": "dreamy intimate date night", "genre": null, "mood": "romantic"}
+  ],
+  "hybrid_cases": [
+    {"query": "late-night coding lofi beats", "genre": "lofi", "mood": "focused"},
+    {"query": "romantic neon night drive", "genre": "synthwave", "mood": "romantic"},
+    {"query": "intense guitar workout anthem", "genre": "rock", "mood": "intense"}
+  ]
+}

@@ -161,10 +161,13 @@ recommendation features.
 python -m ruff check .
 python -m ruff format --check .
 python -m pytest
+python -m scripts.evaluate
 ```
 
-The current tests verify configuration defaults and the application health
-contract.
+The test suite covers unit, API, security, privacy, reliability, and end-to-end
+domain behavior. The evaluation command writes measurable fixed-set results to
+`artifacts/evaluation-report.json` and exits unsuccessfully if a declared AI or
+retrieval threshold regresses.
 
 ## Configuration
 
@@ -194,11 +197,11 @@ personally identifying text when using that tier. See the
 5. AI audio analysis — complete
 6. Retrieval and grounding foundation — complete
 7. AI preference extraction — complete
-8. Hybrid ranking and grounded explanations — in review
-9. Backend API — in review
-10. Responsive user interface — in progress
-11. Logging, security, and guardrails — in review
-12. Testing and AI evaluation
+8. Hybrid ranking and grounded explanations — complete
+9. Backend API — complete
+10. Responsive user interface — implemented; visual QA pending
+11. Logging, security, and guardrails — complete
+12. Testing and AI evaluation — in review
 13. Documentation and final delivery
 
 ## Current assumptions
