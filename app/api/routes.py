@@ -134,8 +134,8 @@ def application_summary() -> dict[str, str]:
 
     return {
         "name": get_settings().app_name,
-        "status": "Phase 11 operational guardrails",
-        "version": "0.3.0",
+        "status": "Phase 13 MVP complete",
+        "version": "1.0.0",
         "documentation": "/docs",
     }
 
@@ -150,7 +150,7 @@ def health_check() -> HealthResponse:
         application=settings.app_name,
         environment=settings.environment,
         demo_mode=settings.demo_mode,
-        phase=11,
+        phase=13,
     )
 
 
@@ -164,8 +164,8 @@ def api_capabilities() -> ApiCapabilitiesResponse:
 
     settings = get_settings()
     return ApiCapabilitiesResponse(
-        api_version="0.3.0",
-        phase=11,
+        api_version="1.0.0",
+        phase=13,
         capabilities=[
             "deterministic_recommendations",
             "hybrid_grounded_recommendations",

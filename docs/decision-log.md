@@ -43,6 +43,7 @@
 | D-033 | Generate request IDs at the server boundary | Accepted | Prevents log spoofing and makes failures traceable without exposing internals |
 | D-034 | Log request metadata but never request content | Accepted | Supports operations while protecting prompts, audio, cookies, and credentials |
 | D-035 | Enforce same-origin mutations and security headers in the application | Accepted | Adds browser defense in depth before production proxy controls are selected |
+| D-036 | Release the documented local MVP as version 1.0.0 | Accepted | The complete review-first journey, guardrails, tests, evaluation, and handoff documentation are present |
 
 ## Decisions still open
 

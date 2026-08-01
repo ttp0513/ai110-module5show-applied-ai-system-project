@@ -11,11 +11,12 @@ flowchart TB
         INDEX[("Rebuildable retrieval index")]
         TEMP[("Temporary audio workspace")]
         LOGS[("Sanitized structured logs")]
+        RETRIEVAL["Local TF-IDF retrieval"]
+        MIR["Local audio measurement + KNN"]
     end
 
-    subgraph Providers["Optional configured providers"]
-        LLM["Language and embedding models"]
-        MIR["Music-information retrieval models"]
+    subgraph Providers["Optional external provider"]
+        GEMINI["Gemini structured preference extraction"]
     end
 
     BROWSER <-->|"HTTPS in deployment"| APP
@@ -25,8 +26,9 @@ flowchart TB
     APP --> INDEX
     APP --> TEMP
     APP --> LOGS
-    APP -.->|"credentialed outbound request"| LLM
+    APP --> RETRIEVAL
     APP --> MIR
+    APP -.->|"credentialed outbound request"| GEMINI
 
     NOTE["Demo mode replaces external AI calls with deterministic adapters"]
     NOTE -.-> APP

@@ -1,129 +1,27 @@
 # VYBE
 
-VYBE is an AI-assisted music discovery application that turns a listener's
-natural-language description into a transparent, catalog-grounded mix.
+VYBE is a transparent, AI-assisted music recommender. A listener describes a
+moment, reviews the interpreted music preferences, and receives ranked songs
+from an approved catalog with visible score evidence. VYBE recommends music;
+it does not stream, preview, or play audio.
 
-The application will also let listeners upload their own audio. Music-analysis
-models will estimate supported musical features, and the listener must review
-or correct those values before the track enters their private catalog.
+## What the MVP does
 
-## Project status
+- Interprets natural-language vibes with Gemini structured output or a local
+  deterministic fallback.
+- Retrieves real, caller-visible catalog songs with local TF-IDF retrieval.
+- Ranks candidates using 35% text relevance and 65% reviewed feature fit.
+- Explains every result using validated score evidence.
+- Lets listeners skip results and reproducibly refine the set.
+- Accepts private songs through complete manual entry or temporary audio
+  analysis followed by mandatory user review.
+- Persists approved private song data in SQLite until the listener deletes it.
+- Deletes uploaded audio immediately after analysis and never offers playback.
+- Excludes popularity and listening history from recommendation decisions.
 
-- **Phase 1 complete:** product requirements and system boundaries
-- **Phase 2 complete:** runnable scaffold, configuration, and architecture
-- **Phase 3 complete:** canonical catalog and deterministic recommendation
-- **Phase 3 prototype complete:** responsive deterministic interface
-- **Phase 4 complete:** anonymous private songs and manual entry
-- **Phase 5 complete:** temporary audio analysis and mandatory review
-- **Phase 6 complete:** grounded natural-language catalog retrieval
-- **Phase 7 complete:** AI preference interpretation and review
-- **Phase 8 in review:** hybrid ranking and grounded explanations
+## Quick start on Windows
 
-Semantic retrieval, AI preference extraction, and grounded explanations are
-intentionally reserved for later phases.
-
-## Phase 1 documents
-
-- [Product requirements](docs/phase-1-product-requirements.md)
-- [Data and AI contract](docs/phase-1-data-ai-contract.md)
-- [Acceptance criteria](docs/phase-1-acceptance-criteria.md)
-- [Decision log](docs/decision-log.md)
-- [System context diagram](diagrams/system-context.mmd)
-- [Primary user journeys](diagrams/user-journeys.mmd)
-
-## Phase 2 documents
-
-- [Technical architecture](docs/phase-2-technical-architecture.md)
-- [Component diagram](diagrams/component-architecture.mmd)
-- [Domain model](diagrams/domain-model.mmd)
-- [Recommendation sequence](diagrams/recommendation-sequence.mmd)
-- [Audio-analysis sequence](diagrams/audio-analysis-sequence.mmd)
-- [Deployment diagram](diagrams/deployment.mmd)
-- [AI reliability flow](diagrams/ai-reliability-flow.mmd)
-
-## Phase 3 documents
-
-- [Catalog and scoring design](docs/phase-3-catalog-and-recommender.md)
-- [Deterministic recommendation flow](diagrams/deterministic-recommendation-flow.mmd)
-
-## Phase 1–3 interface
-
-The current browser interface includes:
-
-- Product positioning and transparency principles
-- Catalog-backed genre and mood options
-- Optional energy, positivity, danceability, instrumentalness, acousticness,
-  and tempo controls
-- Genre and mood exclusions
-- Five deterministic recommendations
-- Expandable per-feature score contributions
-- Responsive mobile and desktop layouts
-- Keyboard focus, semantic form controls, reduced motion, and safe text
-  rendering
-
-This Phase 3 checkpoint intentionally excluded natural-language AI, RAG,
-user-added songs, audio analysis, and playback. Phase 4 now extends the same
-interface with private manual song entry.
-
-## Phase 4 documents
-
-- [Private songs and manual entry](docs/phase-4-private-songs.md)
-- [Private song lifecycle](diagrams/private-song-lifecycle.mmd)
-
-Phase 4 lets a listener add complete song metadata and recommendation features
-without uploading audio. The song remains isolated to an opaque anonymous
-session, participates in deterministic ranking, and can be removed by its
-owner. SQLite preserves the song across application restarts, while a
-persistent HTTP-only cookie reconnects the same browser to its records.
-
-## Phase 5 documents
-
-- [AI-assisted audio analysis](docs/phase-5-audio-analysis.md)
-- [Audio analysis sequence](diagrams/audio-analysis-sequence.mmd)
-
-Phase 5 accepts a permitted WAV, FLAC, OGG, MP3, or M4A file for temporary
-analysis. Signal measurements and a specialized catalog-trained classifier
-prefill an editable review form. The upload is deleted before review; only
-approved feature values and provenance are stored.
-
-## Phase 6 documents
-
-- [Grounded catalog retrieval](docs/phase-6-grounded-retrieval.md)
-- [Grounded retrieval sequence](diagrams/grounded-retrieval-sequence.mmd)
-
-Phase 6 lets listeners search the caller-visible catalog with phrases such as
-“late-night coding beats.” A local TF-IDF retriever uses controlled music cues
-to return relevant approved records. Every explanation is generated from
-structured catalog evidence, private songs remain session-isolated, and
-unknown requests produce no invented candidates.
-
-## Phase 7 documents
-
-- [AI preference interpretation](docs/phase-7-ai-preference-interpretation.md)
-- [Preference interpretation sequence](diagrams/preference-interpretation-sequence.mmd)
-
-Phase 7 turns natural-language vibe descriptions into schema-validated
-recommendation preferences. Users review the provider, extracted fields,
-fallback status, and ambiguities before applying values to the visible builder.
-The default deterministic interpreter needs no credentials; an optional Gemini
-adapter uses JSON Schema structured output validated by Pydantic.
-
-## Phase 8 documents
-
-- [Hybrid ranking and grounded explanations](docs/phase-8-hybrid-ranking.md)
-- [Hybrid recommendation sequence](diagrams/hybrid-recommendation-sequence.mmd)
-
-Phase 8 combines normalized text relevance at 35% with reviewed deterministic
-feature similarity at 65%. Every result exposes both components and
-per-feature evidence. Unknown queries fall back to feature-only ranking, and
-private songs remain isolated to their owning anonymous session.
-
-## Local setup
-
-Install Python 3.12, 3.13, or 3.14 before running these commands. Phase 2 was
-verified with Python 3.14.
-
-### Windows PowerShell
+Requirements: Python 3.12–3.14 and a modern browser.
 
 ```powershell
 py -3.12 -m venv .venv
@@ -131,50 +29,35 @@ py -3.12 -m venv .venv
 python -m pip install --upgrade pip
 python -m pip install -r requirements-dev.txt
 Copy-Item .env.example .env
-python -m uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:8000/docs` for the generated API documentation.
+Open:
 
-### Deterministic recommendation example
+- Application: <http://127.0.0.1:8000>
+- Interactive API documentation: <http://127.0.0.1:8000/docs>
+- Health check: <http://127.0.0.1:8000/api/health>
+
+If Windows reports `WinError 10013`, the port is unavailable or restricted.
+Use another local port:
 
 ```powershell
-$body = @{
-    preferred_genres = @("lofi")
-    preferred_moods = @("focused")
-    target_instrumentalness = 0.90
-} | ConvertTo-Json
-
-Invoke-RestMethod `
-    -Method Post `
-    -Uri "http://127.0.0.1:8000/api/recommendations/deterministic?limit=5" `
-    -ContentType "application/json" `
-    -Body $body
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8010
 ```
 
-Use `GET /api/catalog/options` to retrieve supported genres, moods, and
-recommendation features.
+Then open <http://127.0.0.1:8010>.
 
-### Verification
+## Gemini configuration
 
-```powershell
-python -m ruff check .
-python -m ruff format --check .
-python -m pytest
-python -m scripts.evaluate
+The default `.env` runs reproducibly without credentials:
+
+```text
+VYBE_DEMO_MODE=true
+VYBE_AI_PROVIDER=demo
 ```
 
-The test suite covers unit, API, security, privacy, reliability, and end-to-end
-domain behavior. The evaluation command writes measurable fixed-set results to
-`artifacts/evaluation-report.json` and exits unsuccessfully if a declared AI or
-retrieval threshold regresses.
-
-## Configuration
-
-Application environment variables use the `VYBE_` prefix. Copy
-`.env.example` to `.env` for local development. Demo mode is enabled by
-default and requires no AI credential. To enable Gemini preference extraction,
-set these values in the ignored `.env` file:
+To enable Gemini preference extraction, obtain a key from Google AI Studio and
+set the ignored local `.env` file:
 
 ```text
 VYBE_DEMO_MODE=false
@@ -183,37 +66,99 @@ VYBE_AI_MODEL=gemini-3.5-flash
 VYBE_GEMINI_API_KEY=<your-key>
 ```
 
-Never commit the key. Google states that content submitted through Gemini's
-free tier may be used to improve its products, so do not submit confidential or
-personally identifying text when using that tier. See the
+Restart the server after changing configuration. Never commit or paste the key
+into logs or issue reports. Google states that content submitted through the
+Gemini free tier may be used to improve its products; do not submit confidential
+or personally identifying prompts on that tier. Review Google's current
 [Gemini API pricing and data-use terms](https://ai.google.dev/gemini-api/docs/pricing).
 
-## Planned delivery phases
+Gemini is used only to extract reviewable preferences. Audio features are
+measured locally, genre and mood estimates use the local specialized model,
+retrieval is local TF-IDF, and final ranking is deterministic.
 
-1. Requirements and project definition
-2. Project setup and architecture — complete
-3. Song catalog and deterministic recommender — complete
-4. Private songs and manual feature entry — complete
-5. AI audio analysis — complete
-6. Retrieval and grounding foundation — complete
-7. AI preference extraction — complete
-8. Hybrid ranking and grounded explanations — complete
-9. Backend API — complete
-10. Responsive user interface — implemented; visual QA pending
-11. Logging, security, and guardrails — complete
-12. Testing and AI evaluation — in review
-13. Documentation and final delivery
+## Primary user journey
 
-## Current assumptions
+1. Describe a vibe such as “romantic futuristic night drive.”
+2. Review and optionally correct the extracted genres, moods, and sound values.
+3. Generate five catalog-grounded recommendations.
+4. Expand a result to inspect retrieval and feature-score evidence.
+5. Select **Not this one** to exclude a result and rerank the remaining songs.
+6. Optionally add a private song manually or analyze permitted audio, review
+   every proposed value, and save only the approved metadata.
 
-- The MVP is a responsive web application.
-- No account is required for the first version.
-- User-added songs are private.
-- Uploaded audio is always deleted when analysis finishes or fails.
-- Users can enter or correct every recommendation feature manually.
-- VYBE recommends songs but does not stream, preview, or play audio.
-- Popularity is not collected or used as a recommendation feature.
-- Social features are outside the MVP.
+Private songs are associated with an anonymous `HttpOnly` browser cookie and
+stored in `data/vybe.db`. They survive server restarts and remain available to
+that browser until deleted. Clearing the cookie breaks the browser's link to
+the records because the MVP has no account-recovery system.
 
-These assumptions are recorded as provisional decisions and can be changed
-before Phase 2 begins.
+## Privacy and safety
+
+- Uploaded audio is temporary and is deleted on success or failure.
+- Raw prompts, request bodies, audio, cookies, and credentials are not logged.
+- Private songs are isolated by anonymous session.
+- AI output must pass JSON Schema, Pydantic, and domain validation.
+- AI interpretations require visible review before ranking.
+- Provider failure automatically uses the deterministic local interpreter.
+- Request IDs, safe errors, request limits, same-origin checks, and browser
+  security headers protect the application boundary.
+
+For a public deployment, add HTTPS, trusted-host enforcement, rate limiting,
+monitoring, backups, log retention, and secret rotation at the hosting layer.
+
+## Verification and evaluation
+
+```powershell
+python -m ruff check .
+python -m ruff format --check .
+python -m pytest
+python -m scripts.evaluate
+```
+
+The evaluation report is written to `artifacts/evaluation-report.json`. The
+fixed versioned dataset measures preference extraction, retrieval, hybrid
+ranking, grounding, constraints, fallback, private-song retrieval, and feature
+ranges. The current controlled set passes all thresholds, but it is not a claim
+of perfect accuracy for arbitrary prompts, live Gemini versions, or all music.
+
+## Architecture
+
+VYBE is a FastAPI modular monolith: one deployable process with separate
+packages for API transport, AI providers, audio analysis, catalog storage,
+retrieval, recommendation, and orchestration. SQLite stores private metadata;
+the built-in catalog is version controlled; uploaded audio uses a temporary
+workspace; Gemini is an optional external preference-extraction provider.
+
+Start with:
+
+- [Technical architecture](docs/phase-2-technical-architecture.md)
+- [Component architecture](diagrams/component-architecture.mmd)
+- [Domain model](diagrams/domain-model.mmd)
+- [Deployment model](diagrams/deployment.mmd)
+- [User journeys](diagrams/user-journeys.mmd)
+- [Model card](docs/model-card.md)
+- [Decision log](docs/decision-log.md)
+
+## Delivery documentation
+
+- [Requirements](docs/phase-1-product-requirements.md)
+- [Data and AI contract](docs/phase-1-data-ai-contract.md)
+- [Acceptance criteria](docs/phase-1-acceptance-criteria.md)
+- [Catalog and deterministic ranking](docs/phase-3-catalog-and-recommender.md)
+- [Private songs](docs/phase-4-private-songs.md)
+- [Audio analysis](docs/phase-5-audio-analysis.md)
+- [Grounded retrieval](docs/phase-6-grounded-retrieval.md)
+- [AI preference interpretation](docs/phase-7-ai-preference-interpretation.md)
+- [Hybrid ranking](docs/phase-8-hybrid-ranking.md)
+- [Backend API](docs/phase-9-backend-api.md)
+- [Responsive UI](docs/phase-10-responsive-ui.md)
+- [Operational guardrails](docs/phase-11-logging-security-guardrails.md)
+- [Testing and AI evaluation](docs/phase-12-testing-and-ai-evaluation.md)
+- [Final delivery](docs/phase-13-final-delivery.md)
+
+## MVP boundaries
+
+- No playback, streaming, previews, or audio retention.
+- No user accounts, social features, or collaborative playlists.
+- No popularity, listening-history, or behavioral tracking.
+- No claim that AI-estimated genre or mood is objective fact.
+- No production hosting configuration is included.

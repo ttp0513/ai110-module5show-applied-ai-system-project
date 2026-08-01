@@ -7,8 +7,8 @@ documented public application contract. FastAPI remains the transport layer;
 catalog, AI, retrieval, analysis, and ranking logic stay in their existing
 domain modules.
 
-Phase 9 introduced API version `0.2.0`; Phase 11 advances the current API to
-`0.3.0` with operational guardrails. Interactive documentation is available at
+Phase 9 introduced API version `0.2.0`; the completed Phase 13 MVP advances the
+current API to `1.0.0`. Interactive documentation is available at
 `/docs`, the machine-readable OpenAPI document at `/openapi.json`, and safe
 client limits and capabilities at `GET /api/capabilities`.
 
