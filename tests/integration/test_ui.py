@@ -30,6 +30,9 @@ def test_root_serves_preference_builder() -> None:
     assert 'id="audio-analysis-form"' in response.text
     assert 'id="retrieval-form"' in response.text
     assert 'id="interpretation-review"' in response.text
+    assert 'id="ai-mode-status"' in response.text
+    assert "Checking AI mode" in response.text
+    assert 'src="/static/js/app.js?v=1.0.1"' in response.text
     assert 'id="refinement-bar"' in response.text
     assert 'id="reset-refinement"' in response.text
     assert "Grounded catalog retrieval" in response.text
@@ -49,6 +52,9 @@ def test_static_assets_are_available() -> None:
     assert "/api/songs/analyze" in script.text
     assert "/api/retrieval/search" in script.text
     assert "/api/preferences/interpret" in script.text
+    assert "/api/capabilities" in script.text
+    assert "Gemini AI active" in script.text
+    assert "Local demo fallback" in script.text
     assert '"/api/recommendations?limit=5"' in script.text
     assert '"/api/recommendations/refine?limit=5"' in script.text
     assert "excluded_song_ids" in script.text

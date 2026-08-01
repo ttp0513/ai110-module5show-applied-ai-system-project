@@ -9,7 +9,7 @@
     >
     <title>VYBE — Find your next sound</title>
     <link rel="stylesheet" href="/static/css/app.css">
-    <script src="/static/js/app.js" defer></script>
+    <script src="/static/js/app.js?v=1.0.1" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#preference-builder">Skip to preference builder</a>
@@ -20,9 +20,9 @@
         <span>VYBE</span>
       </a>
       <div class="header-meta">
-        <span class="system-pill">
+        <span class="system-pill" id="ai-mode-status" aria-live="polite">
           <span class="status-dot" aria-hidden="true"></span>
-          Deterministic mode
+          <span id="ai-mode-label">Checking AI mode…</span>
         </span>
         <a class="text-link" href="#private-catalog">My songs</a>
         <a class="text-link" href="/docs">API docs</a>

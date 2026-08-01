@@ -10,6 +10,7 @@ htmlcov/
 
 artifacts/*
 !artifacts/.gitkeep
+!artifacts/reproducible-execution.md
 logs/*
 !logs/.gitkeep
 

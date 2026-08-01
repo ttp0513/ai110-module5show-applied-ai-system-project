@@ -10,6 +10,8 @@ const state = {
 };
 
 const elements = {
+  aiModeStatus: document.querySelector("#ai-mode-status"),
+  aiModeLabel: document.querySelector("#ai-mode-label"),
   form: document.querySelector("#recommendation-form"),
   genres: document.querySelector("#genre-options"),
   moods: document.querySelector("#mood-options"),
@@ -415,6 +417,13 @@ function renderInterpretation(payload) {
   elements.interpretationProvider.textContent =
     `${payload.provider} · ${payload.model}` +
     (payload.used_fallback ? " · fallback" : "");
+  if (payload.provider === "gemini") {
+    elements.aiModeLabel.textContent = "Gemini AI active";
+  } else if (payload.used_fallback) {
+    elements.aiModeLabel.textContent = "Gemini unavailable · local fallback";
+  } else {
+    elements.aiModeLabel.textContent = "Local demo fallback";
+  }
   elements.interpretationSummary.textContent = payload.interpretation_summary;
   elements.interpretationFields.replaceChildren(
     ...preferenceLabels(payload.preferences).map((text) => {
@@ -608,6 +617,20 @@ async function loadOptions() {
     elements.error.textContent = error.message;
     elements.error.hidden = false;
     elements.submit.disabled = true;
+  }
+}
+
+async function loadAiMode() {
+  try {
+    const response = await fetch("/api/capabilities");
+    if (!response.ok) throw new Error("AI mode unavailable");
+    const capabilities = await response.json();
+    elements.aiModeLabel.textContent =
+      capabilities.preference_interpreter_mode === "gemini"
+        ? `Gemini AI ready · ${capabilities.preference_interpreter_model}`
+        : "Local demo fallback";
+  } catch {
+    elements.aiModeLabel.textContent = "AI status unavailable";
   }
 }
 
@@ -847,7 +870,7 @@ elements.songForm.addEventListener("submit", async (event) => {
 });
 
 async function initialize() {
-  await loadOptions();
+  await Promise.all([loadOptions(), loadAiMode()]);
   try {
     await loadPrivateSongs();
   } catch (error) {

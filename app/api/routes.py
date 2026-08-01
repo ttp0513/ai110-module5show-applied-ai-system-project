@@ -126,6 +126,8 @@ class ApiCapabilitiesResponse(BaseModel):
     maximum_recommendation_count: int
     maximum_prompt_length: int
     maximum_audio_upload_bytes: int
+    preference_interpreter_mode: Literal["gemini", "local_demo"]
+    preference_interpreter_model: str
 
 
 @router.get("/api", tags=["application"])
@@ -163,6 +165,11 @@ def api_capabilities() -> ApiCapabilitiesResponse:
     """Expose safe client configuration without credentials or internal paths."""
 
     settings = get_settings()
+    gemini_ready = (
+        not settings.demo_mode
+        and settings.ai_provider == "gemini"
+        and bool(settings.gemini_api_key)
+    )
     return ApiCapabilitiesResponse(
         api_version="1.0.0",
         phase=13,
@@ -180,6 +187,10 @@ def api_capabilities() -> ApiCapabilitiesResponse:
         maximum_recommendation_count=20,
         maximum_prompt_length=settings.max_prompt_length,
         maximum_audio_upload_bytes=settings.max_audio_upload_bytes,
+        preference_interpreter_mode="gemini" if gemini_ready else "local_demo",
+        preference_interpreter_model=(
+            settings.ai_model if gemini_ready else "rules-v1"
+        ),
     )
 
 

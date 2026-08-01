@@ -207,10 +207,13 @@ fixed versioned dataset measures preference extraction, retrieval, hybrid
 ranking, grounding, constraints, fallback, private-song retrieval, and feature
 ranges. The current controlled set passes all thresholds, but it is not a claim
 of perfect accuracy for arbitrary prompts, live Gemini versions, or all music.
+See the committed
+[reproducible execution evidence](artifacts/reproducible-execution.md) for the
+exact release commands, outputs, metrics, and interaction log.
 
 What worked:
 
-- 74 unit, integration, security, privacy, UI-contract, and reliability tests
+- 76 unit, integration, security, privacy, UI-contract, and reliability tests
   pass.
 - The fixed evaluation passes every declared threshold, with 100% catalog
   grounding, 100% forced-provider fallback success, and zero unsupported

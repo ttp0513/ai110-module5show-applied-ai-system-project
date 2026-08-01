@@ -31,6 +31,11 @@ def test_capability_manifest_exposes_safe_client_limits() -> None:
     assert payload["phase"] == 13
     assert "recommendation_refinement" in payload["capabilities"]
     assert "operational_guardrails" in payload["capabilities"]
+    assert payload["preference_interpreter_mode"] in {"gemini", "local_demo"}
+    if payload["preference_interpreter_mode"] == "gemini":
+        assert payload["preference_interpreter_model"].startswith("gemini-")
+    else:
+        assert payload["preference_interpreter_model"] == "rules-v1"
     assert payload["maximum_recommendation_count"] == 20
     assert "gemini_api_key" not in response.text
 

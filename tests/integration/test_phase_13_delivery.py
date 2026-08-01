@@ -50,3 +50,24 @@ def test_root_model_card_answers_responsible_ai_prompts() -> None:
         "### Flawed AI suggestion",
     )
     assert all(section in model_card for section in required_sections)
+
+
+def test_reproducible_evidence_covers_release_commands_and_interactions() -> None:
+    evidence = (PROJECT_ROOT / "artifacts" / "reproducible-execution.md").read_text(
+        encoding="utf-8"
+    )
+
+    required_evidence = (
+        "python.exe -m pip check",
+        "python.exe -m pytest -q",
+        "python.exe -m scripts.evaluate",
+        "/api/health",
+        "/api/capabilities",
+        "## Interaction 1",
+        "## Interaction 2",
+        "## Interaction 3",
+        "76 tests passed",
+        "Overall metric pass rate: 100.00%",
+    )
+    assert all(item in evidence for item in required_evidence)
+    assert "VYBE_GEMINI_API_KEY=" not in evidence
