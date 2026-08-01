@@ -270,7 +270,7 @@ Start with:
 - [Domain model](diagrams/domain-model.mmd)
 - [Deployment model](diagrams/deployment.mmd)
 - [User journeys](diagrams/user-journeys.mmd)
-- [Model card](docs/model-card.md)
+- [Model card](model_card.md)
 - [Decision log](docs/decision-log.md)
 
 ## Design decisions and trade-offs

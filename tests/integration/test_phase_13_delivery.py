@@ -36,3 +36,17 @@ def test_release_metadata_is_consistent() -> None:
     assert 'version="1.0.0"' in main
     assert '"version": "1.0.0"' in routes
     assert 'status": "Phase 13 MVP complete"' in routes
+
+
+def test_root_model_card_answers_responsible_ai_prompts() -> None:
+    model_card = (PROJECT_ROOT / "model_card.md").read_text(encoding="utf-8")
+
+    required_sections = (
+        "## Limitations and biases",
+        "## Potential misuse and prevention",
+        "## Reliability testing reflection",
+        "## Collaboration with AI",
+        "### Helpful AI suggestion",
+        "### Flawed AI suggestion",
+    )
+    assert all(section in model_card for section in required_sections)
