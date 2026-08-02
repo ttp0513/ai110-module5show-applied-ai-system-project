@@ -108,11 +108,11 @@ retrieval is local TF-IDF, and final ranking is deterministic.
 
 The header reports the current preference-interpreter state:
 
-- **Gemini AI ready** — Gemini is configured and available for requests.
-- **Gemini AI active** — the latest interpretation was produced by Gemini and
+- **Gemini AI ready** : Gemini is configured and available for requests.
+- **Gemini AI active** : the latest interpretation was produced by Gemini and
   passed schema and domain validation.
-- **Local demo fallback** — credential-free deterministic demo mode is active.
-- **Gemini unavailable · local fallback** — Gemini failed or returned invalid
+- **Local demo fallback** : credential-free deterministic demo mode is active.
+- **Gemini unavailable · local fallback** : Gemini failed or returned invalid
   output, so VYBE continued with local rules.
 
 “Gemini AI ready” describes the configuration, not the outcome of every
@@ -359,6 +359,6 @@ user data, and making uncertainty visible. Combining bounded AI assistance
 with deterministic components and human review produced a system that is more
 reliable and easier to explain than an unconstrained model-only workflow.
 
-The graded responsible-AI reflection—including how I collaborated with AI and
-evaluated helpful and flawed suggestions—belongs in `model_card.md` and is kept
+The graded responsible-AI reflection, including how I collaborated with AI and
+evaluated helpful and flawed suggestions, belongs in `model_card.md` and is kept
 separate from this general project reflection.
