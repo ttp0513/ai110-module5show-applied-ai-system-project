@@ -271,8 +271,11 @@ retrieval, recommendation, and orchestration. SQLite stores private metadata;
 the built-in catalog is version controlled; uploaded audio uses a temporary
 workspace; Gemini is an optional external preference-extraction provider.
 
-The primary [System Architecture Diagram](diagrams/component-architecture.mmd)
-shows the module boundaries. At runtime, the main flow is:
+The primary [System Architecture Diagram](diagrams/02-system-architecture.mmd)
+shows the complete browser, AI, recommendation, storage, and audio-analysis
+flow. The [diagram guide](diagrams/README.md) organizes every supporting diagram
+from high-level context to detailed feature sequences. At runtime, the main
+flow is:
 
 ```text
 Listener enters a vibe
@@ -297,10 +300,14 @@ reviews the proposed values.
 Start with:
 
 - [Technical architecture](docs/phase-2-technical-architecture.md)
-- [Component architecture](diagrams/component-architecture.mmd)
-- [Domain model](diagrams/domain-model.mmd)
-- [Deployment model](diagrams/deployment.mmd)
-- [User journeys](diagrams/user-journeys.mmd)
+- [Diagram guide](diagrams/README.md)
+- [System architecture](diagrams/02-system-architecture.mmd)
+- [User journey](diagrams/01-user-journey.mmd)
+- [AI preference workflow](diagrams/03-ai-preference-workflow.mmd)
+- [Recommendation workflow](diagrams/04-recommendation-workflow.mmd)
+- [Private-song workflow](diagrams/05-private-song-workflow.mmd)
+- [AI reliability and guardrails](diagrams/06-ai-reliability.mmd)
+- [Domain model UML](diagrams/07-domain-model-uml.mmd)
 - [Model card](model_card.md)
 - [Decision log](docs/decision-log.md)
 

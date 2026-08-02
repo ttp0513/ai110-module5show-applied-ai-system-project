@@ -1,0 +1,55 @@
+flowchart TD
+%% ============================================================
+%% DIAGRAM 06: AI RELIABILITY AND GUARDRAILS
+%% ============================================================
+%% PURPOSE:
+%% Shows how VYBE handles probabilistic, malformed, unsupported, or unavailable AI.
+%%
+%% EXPLANATION:
+%% User input is bounded before reaching AI. Structured AI output must pass schema
+%% validation and a limited correction attempt. Continued failure activates manual
+%% or deterministic fallback. Recommendations are retrieved from approved catalog
+%% records, ranked with deterministic evidence, and fact-checked before return.
+%% Sanitized logs record validation and fallback outcomes without storing secrets.
+%%
+%% HOW TO READ:
+%% Start at the top. Diamonds are checks, "No" arrows are recovery paths, and both
+%% successful and fallback paths converge on a safe response and structured log.
+%%
+%% KEY POINT:
+%% AI failure reduces convenience; it does not produce an ungrounded recommendation.
+%% ============================================================
+    INPUT["Untrusted user request"] --> LIMIT["Length and content validation"]
+    LIMIT --> STRUCTURE["AI structured output"]
+    STRUCTURE --> SCHEMA{"Schema valid?"}
+    SCHEMA -->|"No"| RETRY["One bounded correction attempt"]
+    RETRY --> SCHEMA2{"Now valid?"}
+    SCHEMA2 -->|"No"| MANUAL["Manual or deterministic fallback"]
+    SCHEMA -->|"Yes"| RETRIEVE["Retrieve approved catalog records"]
+    SCHEMA2 -->|"Yes"| RETRIEVE
+    RETRIEVE --> RANK["Deterministic evidence and ranking"]
+    RANK --> TEMPLATE["Render explanation from verified catalog evidence"]
+    TEMPLATE --> FACTS{"Catalog facts and claims valid?"}
+    FACTS -->|"No"| SAFE_OUTPUT["Return safe deterministic evidence"]
+    FACTS -->|"Yes"| RESPONSE["Return grounded response"]
+    SAFE_OUTPUT --> RESPONSE
+    MANUAL --> RESPONSE
+    RESPONSE --> LOG["Log IDs, timings, validation, and fallback"]
+
+    GUARDRAIL_NOTE["Guardrail goal: provider failure or invalid output<br/>degrades safely instead of becoming an ungrounded recommendation."]
+    GUARDRAIL_NOTE -.-> SCHEMA
+    GUARDRAIL_NOTE -.-> FACTS
+
+    classDef entryStyle fill:#111827,stroke:#111827,color:#ffffff,stroke-width:2px
+    classDef decisionStyle fill:#fff7ed,stroke:#ea580c,color:#7c2d12,stroke-width:1.5px
+    classDef aiStyle fill:#f3e8ff,stroke:#7c3aed,color:#3b0764,stroke-width:1.5px
+    classDef safeStyle fill:#ecfdf5,stroke:#059669,color:#064e3b,stroke-width:1.5px
+    classDef observeStyle fill:#e8f1ff,stroke:#2563eb,color:#172554,stroke-width:1.5px
+    classDef noteStyle fill:#fffbeb,stroke:#d97706,color:#78350f,stroke-width:1.5px
+
+    class INPUT entryStyle
+    class SCHEMA,SCHEMA2,FACTS decisionStyle
+    class STRUCTURE,RETRY aiStyle
+    class LIMIT,MANUAL,RETRIEVE,RANK,TEMPLATE,SAFE_OUTPUT,RESPONSE safeStyle
+    class LOG observeStyle
+    class GUARDRAIL_NOTE noteStyle

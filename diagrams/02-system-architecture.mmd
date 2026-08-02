@@ -1,0 +1,155 @@
+flowchart LR
+%% ============================================================
+%% DIAGRAM 02: SYSTEM ARCHITECTURE
+%% ============================================================
+%% PURPOSE:
+%% Provides the complete technical map of VYBE and satisfies the project's System
+%% Architecture Diagram requirement.
+%%
+%% PLAIN-LANGUAGE EXPLANATION:
+%% The browser sends a listener's request to one FastAPI application. Gemini may
+%% translate natural language into structured music preferences, but VYBE checks
+%% the response and asks the listener to approve it. Local code then retrieves and
+%% ranks real catalog songs. Private song metadata is stored in SQLite, while an
+%% uploaded audio file is analyzed locally and deleted.
+%%
+%% HOW TO READ:
+%% Read left to right through the four boundaries: browser, FastAPI application,
+%% application-controlled data, and optional Gemini service. Inside FastAPI, read
+%% workflow A for AI interpretation, B for recommendations, and C for private songs.
+%% Solid arrows are normal flow; dotted arrows are optional or failure paths.
+%%
+%% KEY POINT:
+%% Gemini interprets words only. Local deterministic code retrieves and ranks songs.
+%% ============================================================
+    USER(["Listener"])
+
+    subgraph CLIENT["1 | CLIENT - WEB BROWSER"]
+        direction TB
+        UI["Responsive VYBE interface"]
+        REVIEW["Review and correct<br/>AI or audio proposals"]
+        SESSION["Anonymous session ID<br/>in secure cookie"]
+        UI --- SESSION
+        UI <--> REVIEW
+    end
+
+    subgraph APP["2 | APPLICATION - FASTAPI MODULAR MONOLITH"]
+        direction TB
+        API["API boundary<br/>validation | session scope | safe errors"]
+
+        subgraph PREF["A · AI-ASSISTED PREFERENCE INTERPRETATION"]
+            direction TB
+            ADAPTER["Gemini adapter<br/>structured extraction only"]
+            VALIDATE{"Schema and<br/>music-domain valid?"}
+            FALLBACK["Deterministic local interpreter"]
+            PROPOSAL["Reviewable preference proposal<br/>provider and fallback status"]
+
+            ADAPTER --> VALIDATE
+            VALIDATE -->|"Yes"| PROPOSAL
+            VALIDATE -.->|"No"| FALLBACK
+            ADAPTER -.->|"Unavailable"| FALLBACK
+            FALLBACK --> PROPOSAL
+        end
+
+        subgraph REC["B · GROUNDED RECOMMENDATION PIPELINE"]
+            direction TB
+            ORCH["Recommendation orchestrator"]
+            RETRIEVE["Local TF-IDF retrieval<br/>caller-visible songs only"]
+            RANK["Deterministic hybrid ranking<br/>text relevance + reviewed features"]
+            GUARD["Catalog and constraint guardrails"]
+            EVIDENCE["Grounded recommendations<br/>scores | reasons | provenance"]
+
+            ORCH --> RETRIEVE --> RANK --> GUARD --> EVIDENCE
+        end
+
+        subgraph AUDIO["C · PRIVATE-SONG INGESTION"]
+            direction TB
+            UPLOAD["Validated temporary audio upload"]
+            FEATURES["Local audio feature measurement"]
+            KNN["Local KNN genre and mood estimates"]
+            DELETE["Always delete uploaded audio"]
+            MANUAL["Manual feature entry<br/>or correction"]
+            SONG["Reviewable private-song proposal"]
+
+            UPLOAD --> FEATURES --> KNN --> SONG
+            FEATURES --> DELETE
+            KNN -.->|"Analysis incomplete"| MANUAL
+            MANUAL --> SONG
+        end
+
+        LOG["Sanitized structured logs<br/>request ID · timing · outcome · fallback"]
+    end
+
+    subgraph DATA["3 | DATA - APPLICATION CONTROLLED"]
+        direction TB
+        PUBLIC[("Public catalog<br/>version controlled")]
+        PRIVATE[("Private-song metadata<br/>SQLite | session scoped")]
+        INDEX[("TF-IDF index<br/>local | rebuildable")]
+        TEMP[("Temporary upload workspace<br/>audio never retained")]
+    end
+
+    subgraph EXTERNAL["4 | OPTIONAL EXTERNAL SERVICE"]
+        GEMINI["Google Gemini API<br/>preference extraction"]
+    end
+
+    USER -->|"describe vibe | set preferences | add song"| UI
+    UI -->|"HTTPS request"| API
+
+    API -->|"natural-language vibe"| ADAPTER
+    ADAPTER -.->|"credentialed request"| GEMINI
+    GEMINI -.->|"structured response"| ADAPTER
+    PROPOSAL -->|"display - never apply silently"| REVIEW
+    REVIEW -->|"approved or corrected preferences"| API
+
+    API -->|"recommendation request"| ORCH
+    PUBLIC --> RETRIEVE
+    PRIVATE --> RETRIEVE
+    INDEX --> RETRIEVE
+    PUBLIC --> RANK
+    PRIVATE --> RANK
+    EVIDENCE --> API
+    API -->|"ranked catalog results - no playback"| UI
+
+    API -->|"audio upload"| UPLOAD
+    UI -->|"manual song values"| MANUAL
+    UPLOAD --> TEMP
+    DELETE -->|"remove file"| TEMP
+    SONG --> REVIEW
+    REVIEW -->|"approved private-song metadata"| API
+    API --> PRIVATE
+
+    API -.-> LOG
+    ADAPTER -.-> LOG
+    ORCH -.-> LOG
+    AUDIO -.-> LOG
+
+    NOTE["AI boundary: Gemini interprets a listener's words.<br/>Local, deterministic code retrieves and ranks real catalog songs."]
+    NOTE -.-> PREF
+    NOTE -.-> REC
+
+    classDef actor fill:#111827,stroke:#111827,color:#ffffff,stroke-width:2px;
+    classDef boundary fill:#e8f1ff,stroke:#2563eb,color:#172554,stroke-width:1.5px;
+    classDef ai fill:#f3e8ff,stroke:#7c3aed,color:#3b0764,stroke-width:1.5px;
+    classDef core fill:#ecfdf5,stroke:#059669,color:#064e3b,stroke-width:1.5px;
+    classDef safety fill:#fff7ed,stroke:#ea580c,color:#7c2d12,stroke-width:1.5px;
+    classDef data fill:#f8fafc,stroke:#475569,color:#0f172a,stroke-width:1.5px;
+    classDef external fill:#f1f5f9,stroke:#64748b,color:#0f172a,stroke-width:1.5px,stroke-dasharray:5 3;
+    classDef note fill:#fffbeb,stroke:#d97706,color:#78350f,stroke-width:1.5px,stroke-dasharray:4 3;
+
+    class USER actor;
+    class UI,REVIEW,SESSION,API boundary;
+    class ADAPTER,VALIDATE,FALLBACK,PROPOSAL ai;
+    class ORCH,RETRIEVE,RANK,EVIDENCE core;
+    class GUARD,LOG,DELETE safety;
+    class UPLOAD,FEATURES,KNN,MANUAL,SONG core;
+    class PUBLIC,PRIVATE,INDEX,TEMP data;
+    class GEMINI external;
+    class NOTE note;
+
+    style CLIENT fill:#f8fbff,stroke:#93c5fd,stroke-width:1px
+    style APP fill:#ffffff,stroke:#334155,stroke-width:2px
+    style PREF fill:#faf5ff,stroke:#c4b5fd,stroke-width:1px
+    style REC fill:#f0fdf4,stroke:#86efac,stroke-width:1px
+    style AUDIO fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+    style DATA fill:#f8fafc,stroke:#94a3b8,stroke-width:1px
+    style EXTERNAL fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray:5 3

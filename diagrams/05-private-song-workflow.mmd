@@ -1,0 +1,75 @@
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, Segoe UI, sans-serif","actorBkg":"#e8f1ff","actorBorder":"#2563eb","actorTextColor":"#172554","actorLineColor":"#94a3b8","signalColor":"#334155","signalTextColor":"#0f172a","noteBkgColor":"#fffbeb","noteBorderColor":"#d97706","noteTextColor":"#78350f","sequenceNumberColor":"#ffffff"}}}%%
+%% ============================================================
+%% DIAGRAM 05: PRIVATE-SONG WORKFLOW
+%% ============================================================
+%% PURPOSE:
+%% Combines audio-assisted entry, manual entry, persistence, recommendation use,
+%% privacy boundaries, and deletion into one complete private-song lifecycle.
+%%
+%% PLAIN-LANGUAGE EXPLANATION:
+%% A listener can upload an audio file for local estimates or enter every music
+%% feature manually. Uploaded audio is validated, analyzed, and deleted before a
+%% proposal is shown. The listener reviews or corrects the values. Only approved
+%% metadata is stored in session-scoped SQLite and added to recommendations. The
+%% record remains until the listener deletes it; the audio file never persists.
+%%
+%% HOW TO READ:
+%% Read numbered messages from top to bottom. The first "alt" block shows the two
+%% entry methods. Later blocks show review, recommendation use, and deletion.
+%%
+%% KEY POINT:
+%% VYBE stores approved song metadata, not uploaded audio.
+%% ============================================================
+sequenceDiagram
+    autonumber
+    actor Listener
+    participant UI as VYBE Interface
+    participant API as FastAPI
+    participant Audio as Local Audio Analyzer
+    participant Model as Local KNN Model
+    participant Draft as Temporary Proposal
+    participant DB as SQLite Private Catalog
+    participant Ranker as Recommender
+
+    Note over Listener,Ranker: Private records are isolated by anonymous session ID
+
+    alt Upload audio for assisted analysis
+        Listener->>UI: Select permitted audio and confirm rights
+        UI->>API: Upload validated audio
+        API->>Audio: Analyze randomized temporary file
+        Audio->>Model: Estimate supported genre and mood
+        Model-->>Audio: Labels and confidence
+        Audio-->>API: Features, estimates, provenance, warnings
+        API->>Audio: Delete temporary audio file
+        API->>Draft: Store audio-free review proposal
+    else Enter all features manually
+        Listener->>UI: Enter canonical song values
+        UI->>API: Submit validated manual values
+        API->>Draft: Store review proposal
+    end
+
+    Draft-->>UI: Display editable values and provenance
+    alt Listener discards proposal
+        UI->>API: Discard
+        API->>Draft: Delete proposal
+    else Listener approves or corrects proposal
+        UI->>API: Submit reviewed metadata
+        API->>DB: Save session-owned private song
+        API->>Draft: Delete proposal
+        DB-->>UI: Private song is available
+    end
+
+    opt Listener requests recommendations
+        UI->>API: Submit preferences with session cookie
+        API->>DB: Load current session's songs
+        DB-->>Ranker: Eligible private records
+        Ranker-->>UI: Grounded ranked results
+    end
+
+    opt Listener deletes the private song
+        UI->>API: Delete private song ID
+        API->>DB: Delete only within current session
+        DB-->>UI: Confirm deletion
+    end
+
+    Note over Audio,DB: Temporary audio is deleted. Approved metadata persists until user deletion.

@@ -1,0 +1,60 @@
+flowchart TD
+%% ============================================================
+%% DIAGRAM 01: USER JOURNEY
+%% ============================================================
+%% PURPOSE:
+%% Shows what a listener can do in VYBE without requiring technical knowledge.
+%%
+%% PLAIN-LANGUAGE EXPLANATION:
+%% A listener can describe a vibe, choose music preferences manually, or add a
+%% private song. AI and audio-analysis results are always shown for review. Only
+%% approved information is used to retrieve and rank real songs from catalogs.
+%% The listener can then refine the result by changing preferences or skipping.
+%%
+%% HOW TO READ:
+%% Start at "Open VYBE," follow one numbered branch, and continue downward.
+%% All three branches eventually lead to grounded recommendations.
+%%
+%% KEY POINT:
+%% The listener stays in control; generated or estimated values are never applied
+%% silently.
+%% ============================================================
+    START["Open VYBE"] --> CHOICE{"Choose a task"}
+
+    CHOICE -->|"1 · Describe a vibe"| PROMPT["Enter natural-language request"]
+    PROMPT --> INTERPRET["AI extracts supported preferences"]
+    INTERPRET --> REVIEW["Review or correct interpretation"]
+    REVIEW --> RETRIEVE["Retrieve and rank catalog songs"]
+    RETRIEVE --> RESULTS["View grounded recommendations"]
+    RESULTS --> REFINE["Refine, keep, like, or skip"]
+    REFINE --> RETRIEVE
+
+    CHOICE -->|"2 · Build manually"| PREFS["Set musical preferences"]
+    PREFS --> SCORE["Deterministic catalog scoring"]
+    SCORE --> RESULTS
+
+    CHOICE -->|"3 · Add a song"| METHOD{"Choose entry method"}
+    METHOD -->|"Analyze audio"| UPLOAD["Validate and analyze audio"]
+    UPLOAD --> SONGREVIEW["Review estimates and confidence"]
+    METHOD -->|"Enter manually"| FORM["Complete all song features"]
+    FORM --> SONGREVIEW
+    SONGREVIEW --> APPROVE["Approve private song"]
+    APPROVE --> INDEX["Add to private catalog and retrieval index"]
+    INDEX --> RETRIEVE
+
+    NOTE["Nothing changes the ranking until the listener reviews<br/>and approves AI or audio-analysis proposals."]
+    NOTE -.-> REVIEW
+    NOTE -.-> SONGREVIEW
+
+    classDef start fill:#111827,stroke:#111827,color:#ffffff,stroke-width:2px;
+    classDef decision fill:#fff7ed,stroke:#ea580c,color:#7c2d12,stroke-width:1.5px;
+    classDef ai fill:#f3e8ff,stroke:#7c3aed,color:#3b0764,stroke-width:1.5px;
+    classDef action fill:#e8f1ff,stroke:#2563eb,color:#172554,stroke-width:1.5px;
+    classDef result fill:#ecfdf5,stroke:#059669,color:#064e3b,stroke-width:1.5px;
+    classDef note fill:#fffbeb,stroke:#d97706,color:#78350f,stroke-dasharray:4 3;
+    class START start;
+    class CHOICE,METHOD decision;
+    class INTERPRET ai;
+    class PROMPT,REVIEW,REFINE,PREFS,FORM,UPLOAD,SONGREVIEW action;
+    class RETRIEVE,RESULTS,SCORE,APPROVE,INDEX result;
+    class NOTE note;

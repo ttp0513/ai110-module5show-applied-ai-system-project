@@ -1,0 +1,98 @@
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, Segoe UI, sans-serif","primaryColor":"#ecfdf5","primaryBorderColor":"#059669","primaryTextColor":"#064e3b","lineColor":"#475569","noteBkgColor":"#fffbeb","noteBorderColor":"#d97706","noteTextColor":"#78350f"}}}%%
+%% ============================================================
+%% DIAGRAM 07: DOMAIN MODEL UML - TECHNICAL APPENDIX
+%% ============================================================
+%% PURPOSE:
+%% Documents the principal typed data contracts used by the application.
+%%
+%% PLAIN-LANGUAGE EXPLANATION:
+%% A Song stores catalog facts and music features. FeatureProvenance records whether
+%% each value came from the catalog, local analysis, or user correction.
+%% UserPreferences capture reviewed intent. RetrievalCandidate represents a local
+%% search match. Recommendation connects a real Song to transparent component scores
+%% and reasons. AnalysisProposal holds temporary values that still need user review.
+%%
+%% HOW TO READ:
+%% Each box is a data type. Its rows are fields. A line means one type refers to
+%% another; a filled diamond means the child data belongs to the parent record.
+%% This is a domain model, not a literal SQLite table diagram.
+%%
+%% KEY POINT:
+%% Typed contracts and provenance make AI and ranking results reviewable and testable.
+%% ============================================================
+classDiagram
+    direction LR
+    class Song {
+        +str id
+        +str title
+        +str artist
+        +str genre
+        +str mood
+        +float energy
+        +float tempo_bpm
+        +float valence
+        +float danceability
+        +float acousticness
+        +float instrumentalness
+        +float liveness
+        +int release_year
+        +int duration_seconds
+        +SongSource source
+        +OwnerScope owner_scope
+    }
+
+    class FeatureProvenance {
+        +str feature_name
+        +FeatureSource source
+        +float confidence
+        +str model_version
+        +bool user_corrected
+    }
+
+    class UserPreferences {
+        +list preferred_genres
+        +list preferred_moods
+        +dict numeric_targets
+        +dict constraints
+        +list exclusions
+    }
+
+    class RetrievalCandidate {
+        +str song_id
+        +float relevance
+    }
+
+    class FeatureContribution {
+        +str feature
+        +float similarity
+        +float normalized_weight
+        +float contribution
+    }
+
+    class Recommendation {
+        +Song song
+        +int rank
+        +float feature_score
+        +float retrieval_score
+        +float constraint_score
+        +float final_score
+        +str explanation
+    }
+
+    class AnalysisProposal {
+        +Song proposed_song
+        +list provenance
+        +list warnings
+        +bool needs_review
+    }
+
+    Song "1" *-- "1..*" FeatureProvenance
+    RetrievalCandidate --> Song
+    Recommendation --> Song
+    Recommendation "1" *-- "1..*" FeatureContribution
+    UserPreferences --> Recommendation
+    AnalysisProposal --> Song : proposes
+    AnalysisProposal "1" *-- "1..*" FeatureProvenance
+
+    note for UserPreferences "Reviewed listener intent used by deterministic ranking"
+    note for Recommendation "Every result references a real caller-visible Song"

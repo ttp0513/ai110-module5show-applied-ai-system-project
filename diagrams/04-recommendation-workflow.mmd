@@ -1,0 +1,54 @@
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, Segoe UI, sans-serif","actorBkg":"#e8f1ff","actorBorder":"#2563eb","actorTextColor":"#172554","actorLineColor":"#94a3b8","signalColor":"#334155","signalTextColor":"#0f172a","noteBkgColor":"#fffbeb","noteBorderColor":"#d97706","noteTextColor":"#78350f","sequenceNumberColor":"#ffffff"}}}%%
+%% ============================================================
+%% DIAGRAM 04: RECOMMENDATION WORKFLOW
+%% ============================================================
+%% PURPOSE:
+%% Shows how approved preferences become a ranked list of real songs.
+%%
+%% PLAIN-LANGUAGE EXPLANATION:
+%% VYBE loads public songs and private songs owned by the current anonymous session.
+%% It removes excluded songs, retrieves textually relevant candidates with local
+%% TF-IDF, and measures how well their music features match reviewed preferences.
+%% The hybrid score uses 35 percent retrieval relevance and 65 percent feature
+%% similarity. If text retrieval finds nothing, feature scoring safely uses the
+%% eligible catalog instead.
+%%
+%% HOW TO READ:
+%% Follow the numbered messages from top to bottom. The two branches show behavior
+%% with and without positive text-retrieval matches.
+%%
+%% KEY POINT:
+%% Ranking is local, deterministic, catalog-grounded, and reproducible.
+%% ============================================================
+sequenceDiagram
+    autonumber
+    actor Listener
+    participant UI
+    participant API
+    participant Catalog
+    participant Retrieval
+    participant Scorer as Feature Scorer
+    participant Hybrid as Hybrid Ranker
+    participant Ground as Evidence Renderer
+
+    Note over Listener,Ground: Inputs are reviewed preferences plus caller-visible catalog records
+
+    Listener->>UI: Apply and correct interpreted preferences
+    UI->>API: Query plus reviewed preferences
+    API->>Catalog: Load public and caller-private songs
+    API->>API: Apply exclusions
+    API->>Retrieval: Retrieve up to configured candidate count
+    alt Positive retrieval matches
+        Retrieval-->>Hybrid: Candidates and text relevance
+        Hybrid->>Hybrid: Normalize retrieval scores
+        Hybrid->>Scorer: Score reviewed feature similarity
+        Scorer-->>Hybrid: Feature scores and reasons
+        Hybrid->>Hybrid: 35% retrieval + 65% features
+    else No retrieval match
+        Retrieval-->>Hybrid: Empty candidate set
+        Hybrid->>Scorer: Score full eligible catalog
+        Scorer-->>Hybrid: Feature-only scores and reasons
+    end
+    Hybrid->>Ground: Ranked songs and validated evidence
+    Ground-->>UI: Scores, components, reasons, and grounded prose
+    Note over Retrieval,Ground: Stable calculations make the same inputs produce the same ranking

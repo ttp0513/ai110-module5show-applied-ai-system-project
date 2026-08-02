@@ -1,0 +1,58 @@
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, Segoe UI, sans-serif","actorBkg":"#e8f1ff","actorBorder":"#2563eb","actorTextColor":"#172554","actorLineColor":"#94a3b8","signalColor":"#334155","signalTextColor":"#0f172a","noteBkgColor":"#fffbeb","noteBorderColor":"#d97706","noteTextColor":"#78350f","sequenceNumberColor":"#ffffff"}}}%%
+%% ============================================================
+%% DIAGRAM 03: AI PREFERENCE WORKFLOW
+%% ============================================================
+%% PURPOSE:
+%% Explains exactly where generative AI participates in the application.
+%%
+%% PLAIN-LANGUAGE EXPLANATION:
+%% The listener describes desired music in everyday language. Gemini proposes
+%% supported genres, moods, numeric targets, and constraints. VYBE validates the
+%% structure and allowed values. If Gemini is unavailable or invalid, local rules
+%% provide a safe fallback. The listener can discard, approve, or correct the
+%% proposal before it changes the recommendation controls.
+%%
+%% HOW TO READ:
+%% Read the numbered messages from top to bottom. The "alt" sections show mutually
+%% exclusive success, fallback, discard, and approval paths.
+%%
+%% KEY POINT:
+%% AI output is advisory and reviewable, not an automatic recommendation decision.
+%% ============================================================
+sequenceDiagram
+    autonumber
+    actor Listener
+    participant UI
+    participant API
+    participant Provider as Gemini Provider
+    participant Schema as Pydantic Guard
+    participant Demo as Deterministic Fallback
+    participant Builder as Visible Vibe Builder
+    participant Ranker as Deterministic Recommender
+
+    Note over Listener,Ranker: AI output is a proposal and cannot silently modify ranking
+
+    Listener->>UI: Describe desired music
+    UI->>API: POST bounded prompt
+    API->>Provider: Extract constrained preferences
+    alt Provider succeeds
+        Provider-->>Schema: Structured output
+        Schema->>Schema: Validate enums and ranges
+    else Missing key, timeout, refusal, or invalid output
+        API->>Demo: Extract with local rules
+        Demo-->>Schema: Deterministic structure
+    end
+    alt No active supported preference
+        Schema-->>UI: Ambiguity and disabled Apply
+    else Valid preference signal
+        Schema-->>UI: Reviewable fields and provider status
+        alt Listener discards
+            UI-->>Listener: No recommendation state changes
+        else Listener applies and corrects
+            UI->>Builder: Populate visible controls
+            Listener->>Builder: Adjust interpreted values
+            Builder->>Ranker: Submit approved preferences
+            Ranker-->>UI: Transparent recommendations
+        end
+    end
+    Note over API,Demo: Provider and fallback status remains visible to the listener
