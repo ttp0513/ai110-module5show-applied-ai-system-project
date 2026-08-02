@@ -10,6 +10,21 @@ recommendation experience without silently controlling the result. Model output
 is bounded, reviewable, and backed by deterministic retrieval, ranking,
 fallback, and evaluation systems.
 
+<p align="center">
+  <a href="assets/screenshots/vybe-app-preview.png">
+    <img
+      src="assets/screenshots/vybe-app-preview.png"
+      alt="VYBE music recommender interface showing AI vibe interpretation, manual preference controls, and private-song entry"
+      width="900"
+    >
+  </a>
+</p>
+
+<p align="center">
+  <em>VYBE combines reviewable AI interpretation, transparent recommendations,
+  and private-song entry without music playback.</em>
+</p>
+
 ## From Music Recommender Simulation to VYBE
 
 This application evolved from my Modules 1-3 project, **Music Recommender
