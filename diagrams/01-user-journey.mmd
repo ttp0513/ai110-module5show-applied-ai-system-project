@@ -1,11 +1,10 @@
-flowchart TD
 %% ============================================================
 %% DIAGRAM 01: USER JOURNEY
 %% ============================================================
 %% PURPOSE:
 %% Shows what a listener can do in VYBE without requiring technical knowledge.
 %%
-%% PLAIN-LANGUAGE EXPLANATION:
+%% EXPLANATION:
 %% A listener can describe a vibe, choose music preferences manually, or add a
 %% private song. AI and audio-analysis results are always shown for review. Only
 %% approved information is used to retrieve and rank real songs from catalogs.
@@ -19,6 +18,7 @@ flowchart TD
 %% The listener stays in control; generated or estimated values are never applied
 %% silently.
 %% ============================================================
+flowchart TD
     START["Open VYBE"] --> CHOICE{"Choose a task"}
 
     CHOICE -->|"1 · Describe a vibe"| PROMPT["Enter natural-language request"]

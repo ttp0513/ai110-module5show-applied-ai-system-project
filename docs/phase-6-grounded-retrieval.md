@@ -1,15 +1,5 @@
 # Phase 6: Grounded catalog retrieval
 
-## Outcome
-
-Phase 6 introduces VYBE's retrieval layer. A listener can describe a sound,
-moment, mood, genre, or artist in natural language and receive relevant
-candidates from the approved catalog visible to that browser.
-
-This is the retrieval and grounding foundation for the complete RAG workflow.
-Phase 7 will extract structured preferences with a language-model adapter.
-Phase 8 will combine retrieval relevance with deterministic feature scoring
-and produce final grounded recommendations.
 
 ## Retrieval design
 

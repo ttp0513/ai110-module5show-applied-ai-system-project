@@ -1,4 +1,3 @@
-flowchart LR
 %% ============================================================
 %% DIAGRAM 02: SYSTEM ARCHITECTURE
 %% ============================================================
@@ -6,7 +5,7 @@ flowchart LR
 %% Provides the complete technical map of VYBE and satisfies the project's System
 %% Architecture Diagram requirement.
 %%
-%% PLAIN-LANGUAGE EXPLANATION:
+%% EXPLANATION:
 %% The browser sends a listener's request to one FastAPI application. Gemini may
 %% translate natural language into structured music preferences, but VYBE checks
 %% the response and asks the listener to approve it. Local code then retrieves and
@@ -22,6 +21,7 @@ flowchart LR
 %% KEY POINT:
 %% Gemini interprets words only. Local deterministic code retrieves and ranks songs.
 %% ============================================================
+flowchart LR
     USER(["Listener"])
 
     subgraph CLIENT["1 | CLIENT - WEB BROWSER"]
