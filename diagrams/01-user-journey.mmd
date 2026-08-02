@@ -1,3 +1,4 @@
+flowchart TD
 %% ============================================================
 %% DIAGRAM 01: USER JOURNEY
 %% ============================================================
@@ -18,7 +19,7 @@
 %% The listener stays in control; generated or estimated values are never applied
 %% silently.
 %% ============================================================
-flowchart TD
+
     START["Open VYBE"] --> CHOICE{"Choose a task"}
 
     CHOICE -->|"1 · Describe a vibe"| PROMPT["Enter natural-language request"]
